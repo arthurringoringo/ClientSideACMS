@@ -42,8 +42,8 @@ namespace ClientSideACMS
                 .AddEntityFrameworkStores<APIDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddHttpClient<StudentApiServices>();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
-            services.AddSingleton<WeatherForecastService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
