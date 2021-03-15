@@ -1,4 +1,5 @@
-﻿@page "/login"
+﻿
+@page "/login"
 @model ClientSideACMS.Pages.LoginModel
 @using Microsoft.AspNetCore.Identity
 @using ClientSideACMS.Areas.Identity
@@ -114,8 +115,8 @@
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                             </div>
-                            <input asp-for="Input.Email" class="form-control" />
-                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            <input asp-for="Input.Username" class="form-control" />
+                            <span asp-validation-for="Input.Username" class="text-danger"></span>
                         </div>
                         <div class="input-group mb-2">
                             <div class="input-group-append">

@@ -1,4 +1,13 @@
 ﻿@page "/homepage"
-
-<h1> HI welcom TO ACMS </h1>
-<h3>Further function will be developed soon</h3>
+@using Syncfusion.Blazor.Calendars
+<AuthorizeView Roles="Student">
+    <StudentMenu/>
+</AuthorizeView>
+<AuthorizeView Roles="Admin">
+    <AdminMenu />
+     
+    
+</AuthorizeView>
+<AuthorizeView Roles="Teacher">
+    <TeacherMenu />
+</AuthorizeView>

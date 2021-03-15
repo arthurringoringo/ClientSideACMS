@@ -24,15 +24,15 @@ namespace ClientSideACMS.Pages
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
-        private readonly StudentApiServices _studentApi;
+        private readonly IAPIServiceExtension _emailSender;
+        private readonly IStudentApiServices _studentApi;
 
         public RegisterModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender,
-            StudentApiServices studentapi
+            IAPIServiceExtension emailSender,
+            IStudentApiServices studentapi
             )
         {
             _userManager = userManager;
@@ -139,9 +139,13 @@ namespace ClientSideACMS.Pages
                             pageHandler: null,
                             values: new { area = "Identity", userId = user.Id, code, returnUrl },
                             protocol: Request.Scheme);
+                        
+                        var confirmLink =$"<h1>Thank you for registering to ACMS</h1> <b>Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.";
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        EmailDto email = new EmailDto { To = user.Email, Subject = "Confirm Your Account - ACMS", Body = confirmLink };
+                        //TODO Beutify confirmation page
+                        // Disabled until congirm page is usefull
+                        // await _emailSender.SendEmail(email);
                     }
                     else 
                     {
@@ -156,7 +160,7 @@ namespace ClientSideACMS.Pages
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        await _signInManager.SignInAsync(user, isPersistent: true);
                         return LocalRedirect(returnUrl);
                     }
                 }
