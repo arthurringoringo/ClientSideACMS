@@ -1,0 +1,133 @@
+﻿@page "/Student/Register/Class"
+@namespace StudentPage
+@attribute [Authorize(Roles = "Student")]
+@using ACMS.DAL.Models
+@inject IStudentApiServices StudentAPI
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Student Class Register </strong></h3>
+    <div class="pt-3">
+        @if (paymentMethod == null)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-group row">
+                    <label for="availableClass" class="col-sm-2 col-form-label centered">Class Name :</label>
+                    <div class="col-sm-6">
+                        <InputSelect @bind-Value="model.ClassId" class="form-control" id="avaolableClass">
+                            <option value="">Please Select a Class</option>
+                            @foreach (AvailableClassDTO items in availableClass)
+                                {
+                                <option value="@items.ClassId">@items.ClassName - @items.Teacher.FirstName</option>
+                                }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="classCategory" class="col-sm-2 col-form-label centered">Class Category :</label>
+                    <div class="col-sm-6">
+                        <InputSelect @bind-Value="model.CategoryId" class="form-control" id="classCategory">
+                            <option value="">Please Select a ClassCategory</option>
+                            @foreach (ClassCategoryDGO items in classCategory)
+                                {
+                                <option value="@items.CategoryId">@items.CategoryName</option>
+                                }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="paymentMethod" class="col-sm-2 col-form-label centered">Payment Method :</label>
+                    <div class="col-sm-6">
+                        <InputSelect @bind-Value="model.PaymentMethodId" class="form-control" id="paymentMethod">
+                            <option value="">Please Select a PaymentMethod</option>
+                            @foreach (PaymentMethodDTO items in paymentMethod)
+                                {
+                                <option value="@items.PaymentMethodId">@items.MethodName</option>
+                                }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-5">
+
+                    </div>
+                    <button type="submit" class="col-sm-2 btn btn-primary">Submit</button>
+                </div>
+
+
+
+
+
+
+            </EditForm>
+        }
+    </div>
+
+</div>
+@code {
+
+    private List<ClassCategoryDGO> classCategory;
+    private List<AvailableClassDTO> availableClass;
+    private List<PaymentMethodDTO> paymentMethod;
+    private RegistredClassDTO model { get; set; } = new RegistredClassDTO();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        classCategory = await StudentAPI.GetClassCategory();
+        availableClass = await StudentAPI.GetAvailableClass();
+        paymentMethod = await StudentAPI.GetPaymentMethod();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var currentUser = await UserManager.GetUserAsync(user);
+            
+            model.StudentId = StudentAPI.GetProfileUser(currentUser.Id).StudentId.ToString();
+
+        }
+        else
+        {
+            NavManager.NavigateTo("Login");
+        }
+
+        var result = StudentAPI.RegisterClass(model);
+
+        if (result.Equals(true))
+        {
+            NavManager.NavigateTo("ThankYoupage");
+        }
+        else
+        {
+
+        }
+    }
+
+
+}

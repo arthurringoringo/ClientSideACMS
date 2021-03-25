@@ -104,7 +104,7 @@ namespace ClientSideACMS.Pages
             public string ConfirmPassword { get; set; }
         }
 
-        public async Task<IActionResult> OnGet()
+        public IActionResult OnGet()
         {
             if (User.Identity.IsAuthenticated)
             {

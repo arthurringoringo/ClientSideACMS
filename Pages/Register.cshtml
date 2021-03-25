@@ -24,7 +24,7 @@
         }
 
         .user_card {
-            height:700px;
+            height:800px;
             width: 1000px;
             margin-top: auto;
             margin-bottom: auto;
@@ -59,7 +59,7 @@
         }
 
         .form_container {
-            margin-top: 100px;
+            margin-top: 0px;
         }
 
         .login_btn {
@@ -97,25 +97,25 @@
         .register {
             background: -webkit-linear-gradient(left, #3931af, #00c6ff);
             margin-top: 3%;
-            padding: 3%;
+            padding: 5%;
         }
 
         .register-left {
             text-align: center;
             color: #fff;
-            margin-top: 4%;
+            /*margin-top: 4%;*/
         }
 
             .register-left input {
                 border: none;
                 border-radius: 1.5rem;
-                padding: 2%;
-                width: 80%;
+                /*padding: 2%;*/
+                width: 100%;
                 background: #f8f9fa;
                 font-weight: bold;
                 color: #383d41;
-                margin-top: 30%;
-                margin-bottom: 3%;
+               /* margin-top: 30%;
+                margin-bottom: 3%;*/
                 cursor: pointer;
             }
 
@@ -153,14 +153,14 @@
             text-align: center;
             margin: 0;
             border: none;
-            border-radius: 1.5rem;
-            padding: 2%;
+            border-radius: 1rem;
+            padding: 1%;
             background: #0062cc;
             color: #fff;
             font-weight: 600;
-            width: 50%;
+            width: 25%;
             cursor: pointer;
-            top: 90%;
+            top: 80%;
             left: 50%;
             -ms-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
@@ -210,14 +210,14 @@
             <div class="user_card">
                 <div class="d-flex justify-content-center">
                     <div class="brand_logo_container">
-                        <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fm.facebook.com%2Fapiu.edu%2Fposts%2F%3Fref%3Dpage_internal%26mt_nav%3D0&psig=AOvVaw1jQlvPMiUBzHaGHYVE1IjX&ust=1614607884175000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJDg6Z7hjO8CFQAAAAAdAAAAABAO" class="brand_logo" alt="Logo">
+                        <img src="/2019-University-Seal-Color.webp" class="brand_logo" alt="Logo">
                     </div>
                 </div>
                 <div class="d-flex justify-content-center form_container">
                     <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
                         <div class="row register-form">
-                            <div class="col-md-6">
-                                <div asp-validation-summary="All" class="text-danger"></div>
+                            <div class="col-lg-6">
+                                @*<div asp-validation-summary="All" class="text-danger"></div>*@
                                 <div class="form-group">
                                     <label asp-for="Input.Username"></label>
                                     <input asp-for="Input.Username" class="form-control" placeholder="Username *">
@@ -258,27 +258,32 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-lg-6">
 
                                 <div class="form-group">
                                     <label asp-for="Input.Email"></label>
                                     <input asp-for="Input.Email" class="form-control" placeholder="Your Email *" value="">
+                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
                                 </div><div class="form-group">
-                                <label asp-for="Input.Lastname"></label>
+                                    <label asp-for="Input.Lastname"></label>
                                     <input asp-for="Input.Lastname" class="form-control" placeholder="Last name*" value="">
+                                    <span asp-validation-for="Input.Lastname" class="text-danger"></span>
                                 </div>
                                       <div class="form-group">
                                           <label asp-for="Input.Phonenumber"></label>
                                           <input asp-for="Input.Phonenumber" class="form-control" placeholder="Phone number*" value="">
+                                          <span asp-validation-for="Input.Phonenumber" class="text-danger"></span>
                                       </div>
-                                <div class="form-group">
-                                    <label asp-for="Input.BirthOfDate"></label>
-                                    <input asp-for="Input.BirthOfDate" class="form-control" placeholder="BirthDate *" value="">
-                                </div>
-                                <div class="form-group">
-                                    <label asp-for="Input.SchoolName"></label>
-                                    <input asp-for="Input.SchoolName" class="form-control" placeholder="School name *" value="">
-                                </div>
+                                      <div class="form-group">
+                                          <label asp-for="Input.BirthOfDate"></label>
+                                          <input asp-for="Input.BirthOfDate" class="form-control" placeholder="BirthDate *" value="">
+                                          <span asp-validation-for="Input.BirthOfDate" class="text-danger"></span>
+                                      </div>
+                                      <div class="form-group">
+                                          <label asp-for="Input.SchoolName"></label>
+                                          <input asp-for="Input.SchoolName" class="form-control" placeholder="School name *" value="">
+                                          <span asp-validation-for="Input.SchoolName" class="text-danger"></span>
+                                      </div>
 
 
                                 <div class="row">
@@ -286,6 +291,7 @@
                                         <div class="form-group">
                                             <label asp-for="Input.Address"></label>
                                             <input asp-for="Input.Address" class="form-control" placeholder="Address" value="">
+                                            <span asp-validation-for="Input.Address" class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -305,7 +311,7 @@
 
                 <div class="mt-5">
                     <div class="d-flex justify-content-center links">
-                        Already have an account? <a asp-page="/" class="ml-2">Login</a>
+                        Already have an account? <a asp-page="/login" class="ml-2">Login</a>
                     </div>
                     <div class="d-flex justify-content-center links">
                         <a href="#">Forgot your password?</a>

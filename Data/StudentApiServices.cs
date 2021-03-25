@@ -40,7 +40,6 @@ namespace ClientSideACMS.Data
             //var stringcontent = new StringContent(modelInJson);
             StringContent classid = new StringContent(model.ClassId.ToString());
             StringContent studentid = new StringContent(model.StudentId.ToString());
-            StringContent datepaid = new StringContent(model.DatePaid.ToString());
             StringContent paymentmonth = new StringContent(model.PaymentsMonth.ToString());
             
             var multiPartContent = new MultipartFormDataContent();
@@ -50,7 +49,6 @@ namespace ClientSideACMS.Data
             multiPartContent.Add(baContent, "File", model.Image.FileName);
             multiPartContent.Add(studentid, "StudentId");
             multiPartContent.Add(classid, "ClassId");
-            multiPartContent.Add(datepaid, "DatePaid");
             multiPartContent.Add(paymentmonth, "PaymentsMonth");
             //multiPartContent.Add(stringcontent);
 
@@ -92,8 +90,24 @@ namespace ClientSideACMS.Data
 
 
         }
+        public Student GetProfileUser(int id)
+        {
 
-        public async Task<string> RegisterClass(RegistredClass model)
+
+            var result = client.GetAsync("/Student/profile/user/" + id).Result;
+
+            result.EnsureSuccessStatusCode();
+
+            var httpResponseMessage = result.Content.ReadAsStringAsync().Result;
+
+            var profile = JsonConvert.DeserializeObject<Student>(httpResponseMessage);
+
+            return profile;
+
+
+        }
+
+        public async Task<string> RegisterClass(RegistredClassDTO model)
         {
             var modelInJson = JsonConvert.SerializeObject(model);
 
@@ -117,6 +131,42 @@ namespace ClientSideACMS.Data
             var httpResponseMessage = await result.Content.ReadAsStringAsync();
 
             return httpResponseMessage;
+        }
+        public async Task<List<ClassCategoryDGO>> GetClassCategory()
+        {
+            var result = await client.GetAsync("/Student/classcategory");
+
+            result.EnsureSuccessStatusCode();
+
+            var httResponseMessage = result.Content.ReadAsStringAsync().Result;
+
+            var classCategory = JsonConvert.DeserializeObject<List<ClassCategoryDGO>>(httResponseMessage);
+
+            return classCategory;
+        }
+        public async Task<List<AvailableClassDTO>> GetAvailableClass()
+        {
+            var result = await client.GetAsync("/Student/availableclass");
+
+            result.EnsureSuccessStatusCode();
+
+            var httResponseMessage = result.Content.ReadAsStringAsync().Result;
+
+            var availableClass = JsonConvert.DeserializeObject<List<AvailableClassDTO>>(httResponseMessage);
+
+            return availableClass;
+        }
+        public async Task<List<PaymentMethodDTO>> GetPaymentMethod()
+        {
+            var result = await client.GetAsync("/Student/paymentmethod");
+
+            result.EnsureSuccessStatusCode();
+
+            var httResponseMessage = result.Content.ReadAsStringAsync().Result;
+
+            var availableClass = JsonConvert.DeserializeObject<List<PaymentMethodDTO>>(httResponseMessage);
+
+            return availableClass;
         }
 
     }
