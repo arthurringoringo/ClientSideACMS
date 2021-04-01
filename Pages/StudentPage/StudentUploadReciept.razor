@@ -1,20 +1,278 @@
 ﻿@page "/Student/Upload/Receipt"
 @namespace StudentPage
+@attribute [Authorize(Roles = "Student")]
+@using ACMS.DAL.Models
+@inject IStudentApiServices StudentAPI
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@using APIACMS.Services;
+@using System.IO
+@inject IStudentServices studentservices; 
+@using Microsoft.AspNetCore.Components.Forms
 
-@attribute [Authorize(Roles ="Student")]
-<h3>Upload Reciept</h3>
 
 
 
 
 
+<div class="mainbox">
+
+    <h3><strong> Class Payment - Upload Reciept </strong></h3>
+    <div class="pt-3">
+        @if (userPaidSession == null)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
 
 
 
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Upload payment Success!</h4>
+                    <p>Your Payment for class @userRegistredClass.Where(x => x.RegistredClassId == new Guid(model.RegistredClassId)).FirstOrDefault().Class.ClassName is uploaded.</p>
+                    <hr>
+                    <p>Plase Check you email for confirmation and wait for confirmation. Thank you.</p>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Payment Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+
+            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                <div class="col-sm-8">
+                    <div class="form-group row">
+                        <label for="availableClass" class="col-sm-2 col-form-label centered">Class Name :</label>
+                        <div class="col-sm-10">
+                            <InputSelect @bind-Value="model.RegistredClassId" class="form-control" id="availableClass">
+                                <option value="">Please Select a Class</option>
+                                @foreach (RegistredClass items in userRegistredClass)
+                                    {
+                                    <option value="@items.RegistredClassId">@items.Class.ClassName - @items.Class.Teacher.FirstName</option>
+                                    }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="paymentsMonths" class="col-sm-2 col-form-label centered">Payment's Month:</label>
+                        <div class="col-sm-10">
+                            <InputSelect @bind-Value="model.PaymentsMonth" class="form-control" id="paymentMonths">
+                                <option value="">Please Select a Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="paymentMethod" class="col-sm-2 col-form-label centered">Choose Image :</label>
+                        <div class="col-sm-10">
+                            <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="LoadImage" />
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-5">
+                            <div class="spin-row">
+
+                            </div>
+                        </div>
+                        @if (IsProcessing is false)
+                        {
+
+                            <button class="btn btn-primary btn-outline-primary float-right search">Pay</button>
+
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" type="button" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Loading...
+                            </button>
+
+                        }
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+
+                    <img src="@imageDatauri" />
+                </div>
+                    </div>
+</EditForm>
+
+            //TODO MAKE DATA GRID SYNFUSION FOR REGISTERED CLASSES
+            @if (userRegistredClass == null)
+            {
+                <span>No user paid session found!!</span>
+            }
+            else
+            {
+                <table class=" fixed_header center">
+                    <thead>
+                        <tr>
+                            <th>
+                                Date Paid
+                            </th>
+
+                            <th>
+                                Class Name
+                            </th>
+
+                            <th>
+                                Picture
+                            </th>
+
+                            <th>
+                                Payment Accepted
+                            </th>
+
+                            <th>
+                                Payments month
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (PaidSession item in userPaidSession)
+                        {
 
 
+                            <tr>
+                                <td>@item.DatePaid</td>
+                                <td>@item.RegistredClass.Class.ClassName</td>
+                                <td>@item.PictureLink</td>
+                                <td>
+                                    @if (item.PaymentAccepted is false or null)
+                                    {
+                                        <span class="badge badge-warning">No</span>
+                                    }
+                                    else if (item.PaymentAccepted is true)
+                                    { <span class="badge badge-success">Yes</span>}
+                                </td>
+                                <td>@item.PaymentsMonth</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
 
+    </div>
 
+</div>
 @code {
+    public string ErrorDetails = "";
 
+    public List<RegistredClass> userRegistredClass;
+    public List<PaidSession> userPaidSession;
+    private PaidSessionDTO model { get; set; } = new PaidSessionDTO();
+    private string success;
+    private bool IsProcessing { get; set; }
+    public Guid studentId;
+    public string imageDatauri;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        success = null;
+        if (user.Identity.IsAuthenticated && user != null)
+        {
+            var currentUser = await UserManager.GetUserAsync(user);
+
+            studentId = StudentAPI.GetProfileUser(currentUser.Id.ToString()).StudentId;
+
+
+
+
+        }
+        else
+        {
+            NavManager.NavigateTo("Login");
+        }
+        userRegistredClass = await StudentAPI.GetStudentRegistredClass(studentId);
+        userPaidSession = StudentAPI.GetPaidSession(studentId.ToString());
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        IsProcessing = true;
+        success = null;
+        StateHasChanged();
+
+        var result = await StudentAPI.UploadRecipt(model);
+        //var result = studentservices.UploadReciept(model);
+        if (result == "Success")
+        {
+
+            success = "True";
+            IsProcessing = false;
+
+            StateHasChanged();
+            userPaidSession = StudentAPI.GetPaidSession(studentId.ToString());
+        }
+        else
+        {
+
+            success = "False";
+            IsProcessing = false;
+            StateHasChanged();
+
+        }
+
+    }
+
+    public async Task LoadImage(InputFileChangeEventArgs e)
+    {
+
+        long maxfilesize = 1024*1024*15;
+
+
+        var imageFile = await e.File.RequestImageFileAsync("image/jpeg", maxWith: 640, maxHeight: 480);
+
+        MemoryStream ms = new();
+        using Stream filestream = imageFile.OpenReadStream(maxfilesize);
+        await filestream.CopyToAsync(ms);
+        model.PictureLink = e.File.Name;
+
+        imageDatauri = $"data:image/jpeg;base64,{Convert.ToBase64String(ms.ToArray())}";
+        StateHasChanged();
+        model.Image = ms;
+
+
+
+
+    }
 }

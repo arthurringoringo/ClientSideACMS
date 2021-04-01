@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Syncfusion.Blazor;
+using APIACMS.Extension;
 
 namespace ClientSideACMS
 {
@@ -53,6 +54,8 @@ namespace ClientSideACMS
                 BaseAddress = new Uri("https://localhost:5001/")
             });
             services.AddScoped<IAPIServiceExtension, APIServiceExtension>();
+            services.AddRepositoryCollection();
+            services.AddServiceCollection();
             services.AddScoped<IStudentApiServices, StudentApiServices>();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
             services.ConfigureApplicationCookie(options =>

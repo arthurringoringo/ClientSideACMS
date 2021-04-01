@@ -34,26 +34,30 @@ namespace ClientSideACMS.Data
             return httpResponseMessage;
         }
 
-        public async Task<string> UploadRecipt(PaidSessionDTO model, string imagePath)
+        public async Task<string> UploadRecipt(PaidSessionDTO model)
         {
             //var modelInJson = JsonConvert.SerializeObject(model);
             //var stringcontent = new StringContent(modelInJson);
-            StringContent classid = new StringContent(model.ClassId.ToString());
-            StringContent studentid = new StringContent(model.StudentId.ToString());
+            //StringContent classid = new StringContent(model.ClassId.ToString());
+            //StringContent studentid = new StringContent(model.StudentId.ToString());
+            StringContent RegistrationClassID = new StringContent(model.RegistredClassId);
             StringContent paymentmonth = new StringContent(model.PaymentsMonth.ToString());
-            
+            StringContent picturelink = new StringContent(model.PictureLink);
+
             var multiPartContent = new MultipartFormDataContent();
-            var imageBytes = File.ReadAllBytes(imagePath); ;
-            ByteArrayContent baContent = new ByteArrayContent(imageBytes);
+            //var imageBytes = File.ReadAllBytes(imagePath); ;
+            ByteArrayContent baContent = new ByteArrayContent(model.Image.ToArray());
             
-            multiPartContent.Add(baContent, "File", model.Image.FileName);
-            multiPartContent.Add(studentid, "StudentId");
-            multiPartContent.Add(classid, "ClassId");
+            multiPartContent.Add(baContent, "\"image\"", model.PictureLink);
+            //multiPartContent.Add(studentid, "StudentId");
+            //multiPartContent.Add(classid, "ClassId");
+            multiPartContent.Add(picturelink, "PictureLink");
+            multiPartContent.Add(RegistrationClassID, "RegistredClassId");
             multiPartContent.Add(paymentmonth, "PaymentsMonth");
             //multiPartContent.Add(stringcontent);
 
 
-            var result = await client.PostAsync("/payment/upload/reciept", multiPartContent);
+            var result = await client.PostAsync("/Student/payment/upload/reciept", multiPartContent);
 
             result.EnsureSuccessStatusCode();
 
@@ -90,7 +94,23 @@ namespace ClientSideACMS.Data
 
 
         }
-        public Student GetProfileUser(int id)
+        public List<PaidSession> GetPaidSession(string id)
+        {
+
+
+            var result = client.GetAsync("/Student/paidsession/" + id).Result;
+
+            result.EnsureSuccessStatusCode();
+
+            var httpResponseMessage = result.Content.ReadAsStringAsync().Result;
+
+            var paidSession = JsonConvert.DeserializeObject<List<PaidSession>>(httpResponseMessage);
+
+            return paidSession;
+
+
+        }
+        public Student GetProfileUser(string id)
         {
 
 
@@ -107,17 +127,22 @@ namespace ClientSideACMS.Data
 
         }
 
-        public async Task<string> RegisterClass(RegistredClassDTO model)
+        public string RegisterClass(RegistredClassDTO model)
         {
             var modelInJson = JsonConvert.SerializeObject(model);
 
-            var result = await client.PostAsync("/Student/class/register", new StringContent(modelInJson, Encoding.UTF8, "application/json"));
+            var result = client.PostAsync("/Student/class/register", new StringContent(modelInJson, Encoding.UTF8, "application/json")).GetAwaiter().GetResult();
 
-            result.EnsureSuccessStatusCode();
+            if (result.IsSuccessStatusCode)
+            {
+                var response = result.Content;
 
-            var httpResponseMessage = await result.Content.ReadAsStringAsync();
-
-            return httpResponseMessage;
+                return response.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+            else 
+            {
+                return "False";
+            }
         }
 
         public async Task<string> UpdateProfile(Student model)
@@ -168,7 +193,36 @@ namespace ClientSideACMS.Data
 
             return availableClass;
         }
+        public async Task<List<RegistredClass>> GetStudentRegistredClass(Guid id)
+        {
+            var result = await client.GetAsync("/Student/registred/class/"+id);
 
+            result.EnsureSuccessStatusCode();
+
+            var httResponseMessage = result.Content.ReadAsStringAsync().Result;
+
+            var registredClass = JsonConvert.DeserializeObject<List<RegistredClass>>(httResponseMessage);
+
+            return registredClass;
+        }
+
+        public async Task<string> RegisterClassAsync(RegistredClassDTO model)
+        {
+            var modelInJson = JsonConvert.SerializeObject(model);
+
+            var result = await client.PostAsync("/Student/class/register", new StringContent(modelInJson, Encoding.UTF8, "application/json"));
+
+            if (result.IsSuccessStatusCode)
+            {
+                var response = result.Content;
+
+                return await response.ReadAsStringAsync();
+            }
+            else
+            {
+                return "False";
+            }
+        }
     }
 
 }

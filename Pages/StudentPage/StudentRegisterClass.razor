@@ -9,6 +9,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using Microsoft.AspNetCore.Identity;
 @inject UserManager<User> UserManager
+@using Syncfusion.Blazor.Grids; 
+
+
 
 
 
@@ -28,13 +31,33 @@
         }
         else
         {
-            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmit">
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Register Success!</h4>
+                    <p>Your Registration for class @availableClass.Where(x => x.ClassId == model.ClassId).FirstOrDefault().ClassName is successfull.</p>
+                    <hr>
+                    <p>Plase Check you email for confirmation and contact your respective Teacher. Thank you.</p>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Register Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+
+            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmitAsync">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="form-group row">
                     <label for="availableClass" class="col-sm-2 col-form-label centered">Class Name :</label>
                     <div class="col-sm-6">
-                        <InputSelect @bind-Value="model.ClassId" class="form-control" id="avaolableClass">
+                        <InputSelect @bind-Value="model.ClassId" class="form-control" id="availableClass">
                             <option value="">Please Select a Class</option>
                             @foreach (AvailableClassDTO items in availableClass)
                                 {
@@ -71,27 +94,154 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-sm-5">
+                        <div class="spin-row">
 
+                        </div>
                     </div>
-                    <button type="submit" class="col-sm-2 btn btn-primary">Submit</button>
+                    @if (IsProcessing is false)
+                    {
+
+                        <button class="btn btn-primary btn-outline-primary float-right search">Register</button>
+
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading...
+                        </button>
+
+                    }
+
                 </div>
-
-
-
-
-
-
             </EditForm>
-        }
+
+            //TODO MAKE DATA GRID SYNFUSION FOR REGISTERED CLASSES
+          @if (userRegistredClass == null)
+          {
+              <span>No user registred class found!!</span>
+          }
+          else
+          @*{
+    <SfGrid DataSource=@userRegistredClass AllowPaging="true">
+        <GridEvents OnActionFailure="ActionFailureHandler" TValue="RegistredClass"></GridEvents>
+        <GridPageSettings PageSize="5"></GridPageSettings>
+        <GridColumns>
+            <GridColumn Field=@nameof(RegistredClass.DateRegistered) HeaderText="Date Register" Type="ColumnType.DateTime" TextAlign="TextAlign.Center" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(RegistredClass.Class.ClassName) HeaderText="Class Name" Width="150" TextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(RegistredClass.Class.Teacher.FirstName) HeaderText="Class Teacher" TextAlign="TextAlign.Center" Width="130"></GridColumn>
+            <GridColumn Field=@nameof(RegistredClass.Category.CategoryName) HeaderText="Category name" TextAlign="TextAlign.Center" Width="120"></GridColumn>
+
+            <GridColumn Field=@nameof(RegistredClass.ConfirmedByTeacher) HeaderText="Confirm By Teacher" TextAlign="TextAlign.Center" Width="120">
+                <Template>
+                    @{
+                        var item = (context as RegistredClass);
+                        if (item.ConfirmedByTeacher is false)
+                        {
+                            <span class="badge badge-warning">No</span>
+                        }
+                        else if (item.ConfirmedByTeacher is true)
+                        {
+                            <span class="badge badge-success">Yes</span>
+                        }
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn Field=@nameof(RegistredClass.PaymentMethod.MethodName) HeaderText="Payment Method Name" TextAlign="TextAlign.Center" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(RegistredClass.FullyPaid) HeaderText="Fully Paid" TextAlign="TextAlign.Center" Width="120">
+                <Template>
+                    @{
+                        var item = (context as RegistredClass);
+                        if (item.FullyPaid is null)
+                        {
+                            <span class="badge badge-warning">No</span>
+                        }
+                        else if (item.FullyPaid is true)
+                        {
+                            <span class="badge badge-success">Yes</span>
+                        }
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>*@
+
+
+            <table class=" fixed_header center">
+                <thead>
+                    <tr>
+                        <th>
+                            Date Registered
+                        </th>
+
+                        <th>
+                            Class Name
+                        </th>
+
+                        <th>
+                            Class Teacher
+                        </th>
+
+                        <th>
+                            Class Category
+                        </th>
+
+                        <th>
+                            Confirm by teacher
+                        </th>
+
+                        <th>
+                            Payment Method
+                        </th>
+
+                        <th>
+                            Fully Paid
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                        @foreach (RegistredClass item in userRegistredClass)
+                        {  
+                            
+
+                            <tr>
+                             <td>@item.DateRegistered</td>
+                             <td>@item.Class.ClassName</td>
+                             <td>@item.Class.Teacher.FirstName</td>
+                             <td>@item.Category.CategoryName</td>
+                               <td>@if (item.ConfirmedByTeacher is false)
+                             {
+                                 <span class="badge badge-warning">No</span>
+                             }
+                             else if(item.ConfirmedByTeacher is true)
+                             { <span class="badge badge-success">Yes</span>}</td>
+                             <td>@item.PaymentMethod.MethodName</td>
+                             <td>@if (item.FullyPaid is null)
+                             {
+                                 <span class="badge badge-warning">No</span>
+                             }
+                             else
+                             { @item.FullyPaid }</td>
+                            </tr>
+                        }
+                 </tbody>
+            </table>
+              }
+          
     </div>
 
 </div>
 @code {
+    public string ErrorDetails = "";
 
     private List<ClassCategoryDGO> classCategory;
     private List<AvailableClassDTO> availableClass;
     private List<PaymentMethodDTO> paymentMethod;
+    public List<RegistredClass> userRegistredClass;
     private RegistredClassDTO model { get; set; } = new RegistredClassDTO();
+    private string success;
+    private bool IsProcessing { get; set; }
+    public Guid studentId;
 
 
     protected override async Task OnInitializedAsync()
@@ -99,35 +249,55 @@
         classCategory = await StudentAPI.GetClassCategory();
         availableClass = await StudentAPI.GetAvailableClass();
         paymentMethod = await StudentAPI.GetPaymentMethod();
-    }
-
-    private async Task HandleValidSubmit()
-    {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        if (user.Identity.IsAuthenticated)
+        success = null;
+        if (user.Identity.IsAuthenticated && user != null)
         {
             var currentUser = await UserManager.GetUserAsync(user);
-            
-            model.StudentId = StudentAPI.GetProfileUser(currentUser.Id).StudentId.ToString();
+
+            studentId = StudentAPI.GetProfileUser(currentUser.Id.ToString()).StudentId;
+
+            userRegistredClass = await StudentAPI.GetStudentRegistredClass(studentId);
+
+            model.StudentId = studentId.ToString();
 
         }
         else
         {
-            NavManager.NavigateTo("Login");
-        }
-
-        var result = StudentAPI.RegisterClass(model);
-
-        if (result.Equals(true))
-        {
-            NavManager.NavigateTo("ThankYoupage");
-        }
-        else
-        {
-
+            NavManager.NavigateTo("login");
         }
     }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        IsProcessing = true;
+        success = null;
+
+        var result = await StudentAPI.RegisterClassAsync(model);
+        if (result == "true")
+        {
+
+            success = "True";
+            IsProcessing = false;
+            StateHasChanged();
+            userRegistredClass = await StudentAPI.GetStudentRegistredClass(studentId);
+        }
+        else
+        {
+
+            success = "False";
+            IsProcessing = false;
+            StateHasChanged();
+
+        }
+
+    }
+    public void ActionFailureHandler(FailureEventArgs args)
+    {
+        
+    }
+
 
 
 }
