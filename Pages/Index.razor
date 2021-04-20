@@ -1,10 +1,10 @@
 ﻿@page "/homepage"
 @using Syncfusion.Blazor.Calendars
-@using AdminsPage
+@using AdminPage
 @using StudentPage
 @using TeacherPage   
 <AuthorizeView Roles="Student">
-    <StudentMenu/>
+    <StudentMenu />
 </AuthorizeView>
 <AuthorizeView Roles="Admin">
     <AdminMenu />

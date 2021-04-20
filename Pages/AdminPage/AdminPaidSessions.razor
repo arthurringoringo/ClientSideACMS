@@ -1,0 +1,185 @@
+﻿@page "/PaidSessions"
+
+@namespace AdminPage
+@attribute [Authorize(Roles = "Admin")]
+@using ACMS.DAL.Models
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@inject RoleManager<UserRole> RoleManager
+@using APIACMS.Services;
+@inject IAdminServices adminServices;
+
+
+
+
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Class Payment - Upload Reciept </strong></h3>
+    <div class="pt-3">
+        @if (paidSessions == null)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Operation Success!!!</h4>
+                    <p>Payment Accepted.</p>
+                    <hr />
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Payment Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+
+
+            //TODO MAKE DATA GRID SYNFUSION FOR REGISTERED CLASSES
+            @if (paidSessions == null)
+            {
+                <span>No user paid session found!!</span>
+            }
+            else
+            {
+                <table class=" fixed_header center">
+                    <thead>
+                        <tr>
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Date Paid
+                            </th>
+                            <th>
+                                Student Name
+                            </th>
+                            <th>
+                                Class Name
+                            </th>
+                            <th>
+                                Class Category
+                            </th>
+                            <th>
+                                Class Teacher
+                            </th>
+
+                            <th>
+                                Picture
+                            </th>
+
+                            <th>
+                                Payment Month
+                            </th>
+
+                            <th>
+                                Payment Accepted
+                            </th>
+                            <th>
+                                Update
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (PaidSession item in paidSessions)
+                        {
+
+
+                        <tr>
+                            <td>@item.PaidSessionId</td>
+                            <td>@item.DatePaid</td>
+                            <td>@item.RegistredClass.Student.FirstName @item.RegistredClass.Student.LastName</td>
+                            <td>@item.RegistredClass.Class.ClassName</td>
+                            <td>@item.RegistredClass.Category.CategoryName</td>
+                            <td>@item.RegistredClass.Class.Teacher.FirstName</td>
+                            <td><a href="@item.PictureLink"> View Reciept</a></td>
+                            <td>@item.PaymentsMonth</td>
+                            <td><input type="checkbox" @bind="@item.PaymentAccepted" /></td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-outline-warning btn-outline-warning search" @onclick="()=> Update(item)">Update</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-warning" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+
+    </div>
+
+</div>
+@code {
+    public string ErrorDetails = "";
+
+    public List<PaidSession> paidSessions;
+    private PaidSessionDTO model { get; set; } = new PaidSessionDTO();
+    private string success;
+    private bool IsProcessing { get; set; }
+    public Guid studentId;
+    public string imageDatauri;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        paidSessions = adminServices.GetPaidSessionWithFk().ToList();
+    }
+
+
+    private async Task Update(PaidSession item)
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.UpdatePaidSession(item);
+        IsProcessing = false;
+        if (result == true)
+        {
+            success = "True";
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+
+ 
+}

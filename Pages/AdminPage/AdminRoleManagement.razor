@@ -1,0 +1,374 @@
+﻿@page "/Role/Management"
+
+@namespace AdminPage
+@attribute [Authorize(Roles = "Admin")]
+@using ACMS.DAL.Models
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@inject RoleManager<UserRole> RoleManager
+@using APIACMS.Services;
+@inject IAdminServices adminServices;
+
+
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Role Management </strong></h3>
+    <div class="pt-3">
+        @if (admin == null)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Operation Success!</h4>
+                    <p>User Has Been Moved.</p>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Operation Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+            <h2 class="centered">Student Table</h2>
+            <table class=" fixed_header center" style="height:70px;">
+
+                <thead>
+                    <tr>
+                        <th>
+                            User ID
+                        </th>
+
+                        <th>
+                            UserName
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Update
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Student)
+                    {
+
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>Student</td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-primary btn-outline-primary float-right search" @onclick="()=> MoveToTeacher(user,student)">Move To Teacher</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-primary btn-outline-primary float-right search" @onclick="()=> MoveToAdmin(user,student)">Move To Admin</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+
+            <h2 class="centered">Teacher Table</h2>
+            <table class=" fixed_header center">
+
+                <thead>
+                    <tr>
+                        <th>
+                            User ID
+                        </th>
+
+                        <th>
+                            UserName
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Update
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Teacher)
+                    {
+
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>Teacher</td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-primary btn-outline-primary float-right search" @onclick="()=> MoveToStudent(user,teacher)">Move To Student</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-primary btn-outline-primary float-right search" @onclick="()=> MoveToAdmin(user,teacher)">Move To Admin</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+
+            <h2 class="centered">Admin Table</h2>
+            <table class=" fixed_header center">
+
+                <thead>
+                    <tr>
+                        <th>
+                            User ID
+                        </th>
+
+                        <th>
+                            UserName
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Update
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Admin)
+                    {
+
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>Admin</td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-primary btn-outline-primary float-right search" @onclick="()=> MoveToTeacher(user,admin)">Move To Teacher</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-primary btn-outline-primary float-right search" @onclick="()=> MoveToStudent(user,admin)">Move To Student</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+
+        }
+
+    </div>
+
+</div>
+
+@code {
+
+    private IList<User> Student = new List<User>();
+    private IList<User> Teacher = new List<User>();
+    private IList<User> Admin= new List<User>();
+    private string student = "Student";
+    private string admin = "Admin";
+    private string teacher = "Teacher";
+    private string success;
+    private bool IsProcessing { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        Student = await UserManager.GetUsersInRoleAsync("Student");
+        Teacher = await UserManager.GetUsersInRoleAsync("Teacher");
+        Admin = await UserManager.GetUsersInRoleAsync("Admin");
+
+
+
+
+    }
+
+    private async Task MoveToStudent(User user, string prevRole)
+    {
+        IsProcessing = true;
+        StateHasChanged();
+        var result = await UserManager.RemoveFromRoleAsync(user, prevRole);
+
+
+        if (result.Succeeded) {
+
+            var resultAdd = await UserManager.AddToRoleAsync(user, "Student");
+            if (resultAdd.Succeeded)
+            {
+                IsProcessing = false;
+                success = "True";
+                Student = await UserManager.GetUsersInRoleAsync("Student");
+                Teacher = await UserManager.GetUsersInRoleAsync("Teacher");
+                Admin = await UserManager.GetUsersInRoleAsync("Admin");
+                StateHasChanged();
+
+            }
+        }
+
+    }
+    private async Task MoveToTeacher(User user, string prevRole)
+    {
+        IsProcessing = true;
+        StateHasChanged();
+        var result = await UserManager.RemoveFromRoleAsync(user, prevRole);
+
+
+        if (result.Succeeded)
+        {
+
+            var resultAdd = await UserManager.AddToRoleAsync(user, "Teacher");
+            if (resultAdd.Succeeded)
+            {
+                IsProcessing = false;
+                success = "True";
+                Student = await UserManager.GetUsersInRoleAsync("Student");
+                Teacher = await UserManager.GetUsersInRoleAsync("Teacher");
+                Admin = await UserManager.GetUsersInRoleAsync("Admin");
+                StateHasChanged();
+
+            }
+        }
+    }
+    private async Task MoveToAdmin(User user, string prevRole)
+    {
+        IsProcessing = true;
+        StateHasChanged();
+        var result = await UserManager.RemoveFromRoleAsync(user, prevRole);
+
+
+        if (result.Succeeded)
+        {
+
+            var resultAdd = await UserManager.AddToRoleAsync(user, "Admin");
+            if (resultAdd.Succeeded)
+            {
+                IsProcessing = false;
+                success = "True";
+                Student = await UserManager.GetUsersInRoleAsync("Student");
+                Teacher = await UserManager.GetUsersInRoleAsync("Teacher");
+                Admin = await UserManager.GetUsersInRoleAsync("Admin");
+                StateHasChanged();
+
+            }
+        }
+    }
+}

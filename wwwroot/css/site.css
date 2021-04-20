@@ -268,7 +268,7 @@ app {
             display: block;
             width: 100%;
             overflow: auto;
-            height: 500px;
+            height: 100%;
         }
 
         .fixed_header thead tr {
@@ -288,6 +288,9 @@ app {
     .center {
         margin-left:auto;
         margin-right:auto;
+    }
+    .col-form-label {
+        padding-left:50px;
     }
 
 }

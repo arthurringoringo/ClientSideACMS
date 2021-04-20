@@ -1,0 +1,344 @@
+﻿@page "/RegisteredClass"
+
+@namespace AdminPage
+@attribute [Authorize(Roles = "Admin")]
+@using ACMS.DAL.Models
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@inject RoleManager<UserRole> RoleManager
+@using APIACMS.Services;
+@inject IAdminServices adminServices;
+
+
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Registred Class </strong></h3>
+    <div class="pt-3">
+        @if (IsProcessing ==true)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Operation Success!</h4>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Operation Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+            <h2 class="centered">Available Classes's Table</h2>
+            <table class=" fixed_header center">
+
+                <thead>
+                    <tr>
+                        <th>
+                            Id
+                        </th>
+
+                        <th>
+                            Date Registred
+                        </th>
+
+                        <th>
+                            Student
+                        </th>
+
+                        <th>
+                            Category
+                        </th>
+                        <th>
+                            Class name
+                        </th>
+
+
+                        <th>
+                            Confirmed by Teacher
+                        </th>
+                        <th>
+                            Day
+                        </th>
+                        <th>
+                            Time
+                        </th>
+                        <th>
+                            Payment Method
+                        </th>
+                        <th>
+                            Fully Paid
+                        </th>                         
+                        <th>
+                            Update
+                        </th>                          
+                        <th>
+                            Delete
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in registredClasses)
+                    {
+
+                        <tr>
+                            <td>@item.RegistredClassId</td>
+                            <td>@item.DateRegistered</td>
+                            <td>
+                                <select class="form-control" name="Student" @bind="@item.StudentId">
+                                    @foreach (var student in students)
+                                    {
+                                        <option value="@student.StudentId">@student.FirstName</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" name="Category" @bind="@item.CategoryId">
+                                    @foreach (var category in classCategories)
+                                    {
+                                        <option value="@category.CategoryId">@category.CategoryName</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control" name="Class" @bind="@item.ClassId">
+                                    @foreach (var course in classes)
+                                    {
+                                        <option value="@course.ClassId">@course.ClassName</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <input type="checkbox" @bind="@item.ConfirmedByTeacher" />
+                                @*<select class="form-control" name="Confirm" @bind="@item.ConfirmedByTeacher.">
+        <option value=True>True</option>
+        <option value=False>False</option>*@
+
+                                <!--</select>-->
+                            </td>
+                            <td>
+                                @item.Day
+                            </td>
+                            <td>
+                                @item.Time
+                            </td>
+                            <td>
+                                <select class="form-control" name="PaymentMethod" @bind="@item.PaymentMethodId">
+                                    @foreach (var payment in paymentMethods)
+                                    {
+                                        <option value="@payment.PaymentMethodId">@payment.MethodName</option>
+                                    }
+
+                                </select>
+                            </td>
+                            <td>
+                                <input type="checkbox" @bind="@item.FullyPaid" />
+                            </td>
+
+
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-outline-warning btn-outline-warning search" @onclick="()=> Update(item)">Update</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-warning" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-outline-danger btn-outline-danger search" @onclick="()=> Delete(item)">Delete</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-danger" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+
+
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+            @*<br />
+            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group row">
+                            <label for="ClassName" class="col-sm-3 col-form-label centered">Class Name :</label>
+                            <div class="col-sm-9">
+                                <InputText @bind-Value="model.ClassName" class="form-control" id="ClassName">
+
+                                </InputText>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="Teacher" class="col-sm-3 col-form-label centered">Class Teacher:</label>
+                            <div class="col-sm-9">
+                                <InputSelect @bind-Value="model.TeacherId" class="form-control" id="Teacher">
+                                    @foreach (var teacher in teachers)
+                                        {
+                                        <option value="@teacher.TeacherId">@teacher.FirstName</option>
+                                        }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-5">
+                                <div class="spin-row">
+
+                                </div>
+                            </div>
+                            @if (IsProcessing is false)
+                            {
+
+                                <button class="btn btn-primary btn-outline-primary float-right search">Create</button>
+
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" type="button" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Loading...
+                                </button>
+
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </EditForm>*@
+
+
+        }
+
+    </div>
+
+</div>
+
+@code {
+    private AvailableClass model { get; set; } = new AvailableClass();
+    private List<AvailableClass> classes;
+    private List<Student> students;
+    private List<RegistredClass> registredClasses;
+    private List<ClassCategory> classCategories;
+    private List<PaymentMethod> paymentMethods;
+    private string success;
+    private bool IsProcessing { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Change to async for loadings
+        IsProcessing = true;
+        classes = adminServices.GetAvailableClasses().ToList();
+        students = adminServices.GetStudent().ToList();
+        registredClasses = adminServices.GetRegistredClass().ToList();
+        classCategories = adminServices.GetClassCategory().ToList();
+        paymentMethods = adminServices.GetPaymentMethods().ToList();
+        IsProcessing = false;
+
+
+
+
+
+    }
+
+    private async Task Update(RegistredClass item)
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.UpdateRegisteredClass(item);
+        IsProcessing = false;
+        if (result == true)
+        {
+            success = "True";
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+
+    private async Task Delete(RegistredClass item)
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.DeleteRegisteredClass(item);
+        IsProcessing = false;
+        if (result == true)
+        {
+            success = "True";
+            registredClasses = adminServices.GetRegistredClass().ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+
+    //private async Task HandleValidSubmitAsync()
+    //{
+    //    success = "False";
+    //    IsProcessing = true;
+    //    var result = adminServices.CreateAvailableClass(model);
+    //    IsProcessing = false;
+    //    if (result == true)
+    //    {
+    //        success = "True";
+    //        classes = adminServices.GetAvailableClasses().ToList();
+    //        StateHasChanged();
+    //    }
+    //    else
+    //    {
+    //        success = "False";
+    //        StateHasChanged();
+    //    }
+
+    //}
+}

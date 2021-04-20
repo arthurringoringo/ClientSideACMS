@@ -1,0 +1,311 @@
+﻿@page "/ClassCategory"
+
+@namespace AdminPage
+@attribute [Authorize(Roles = "Admin")]
+@using ACMS.DAL.Models
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@inject RoleManager<UserRole> RoleManager
+@using APIACMS.Services;
+@inject IAdminServices adminServices;
+
+
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Class Category </strong></h3>
+    <div class="pt-3">
+        @if (classesCat == null)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Operation Success!</h4>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Operation Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+            <h2 class="centered">Class Category's Table</h2>
+            <table class=" fixed_header center">
+
+                <thead>
+                    <tr>
+                        <th>
+                            Category ID
+                        </th>
+
+                        <th>
+                            Created On
+                        </th>
+
+                        <th>
+                            Category Name
+                        </th>
+
+                        <th>
+                            Income Instructor
+                        </th>
+                        <th>
+                            Income AIU
+                        </th>                        
+                        <th>
+                            Total Tution Fee
+                        </th>
+                        <th>
+                            Discounted Fee
+                        </th>
+
+                        <th>
+                            Update
+                        </th>
+                        <th>
+                            Delete
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in classesCat)
+                    {
+
+                        <tr>
+                            <td>@item.CategoryId</td>
+                            <td>@item.CreatedOn</td>
+                            <td>
+                                <input type="text" class="form-control" @bind="@item.CategoryName" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" @bind="@item.IncomeInstructor" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" @bind="@item.IncomeAiu" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" @bind="@item.TotalTutionFee" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" @bind="@item.DiscountedFee" />
+                            </td>
+                           
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-outline-warning btn-outline-warning search" @onclick="()=> Update(item)">Update</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-warning" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+                            <td>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-outline-danger btn-outline-danger search" @onclick="()=> Delete(item)">Delete</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-danger" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+                            </td>
+
+
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+            <br />
+            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group row">
+                            <label for="CategoryName" class="col-sm-3 col-form-label centered">Category Name :</label>
+                            <div class="col-sm-9">
+                                <InputText @bind-Value="model.CategoryName" class="form-control" id="CategoryName">
+
+                                </InputText>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="IncomeInstructor" class="col-sm-3 col-form-label centered">Income Instructor :</label>
+                            <div class="col-sm-9">
+                                <InputNumber @bind-Value="model.IncomeInstructor" class="form-control" id="IncomeInstructor">
+
+                                </InputNumber>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="IncomeAIU" class="col-sm-3 col-form-label centered">Income AIU :</label>
+                            <div class="col-sm-9">
+                                <InputNumber @bind-Value="model.IncomeAiu" class="form-control" id="IncomeAIU">
+
+                                </InputNumber>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="TotalTutionFee" class="col-sm-3 col-form-label centered">Total Tution Fee :</label>
+                            <div class="col-sm-9">
+                                <InputNumber @bind-Value="model.TotalTutionFee" class="form-control" id="TotalTutionFee">
+
+                                </InputNumber>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="DiscountedFee" class="col-sm-3 col-form-label centered">Discounted Fee :</label>
+                            <div class="col-sm-9">
+                                <InputNumber @bind-Value="model.DiscountedFee" class="form-control" id="Discounted Fee">
+
+                                </InputNumber>
+                            </div>
+                        </div>
+
+
+
+
+
+                        <div class="form-group row">
+                            <div class="col-sm-5">
+                                <div class="spin-row">
+
+                                </div>
+                            </div>
+                            @if (IsProcessing is false)
+                            {
+
+                                <button class="btn btn-primary btn-outline-primary float-right search">Create</button>
+
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" type="button" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Loading...
+                                </button>
+
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+
+
+        }
+
+    </div>
+
+</div>
+
+@code {
+    private ClassCategory model { get; set; } = new ClassCategory();
+    private List<ClassCategory> classesCat;
+    private string success;
+    private bool IsProcessing { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Change to async for loadings
+        classesCat = adminServices.GetClassCategory().ToList();
+
+
+
+
+    }
+
+    private async Task Update(ClassCategory item)
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.UpdateClassCategory(item);
+        IsProcessing = false;
+        if (result == true)
+        {
+            success = "True";
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+
+    private async Task Delete(ClassCategory item)
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.DeleteClassCategory(item);
+        IsProcessing = false;
+        if (result == true)
+        {
+            success = "True";
+            classesCat = adminServices.GetClassCategory().ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.CreateClassCategory(model);
+        IsProcessing = false;
+        if (result == true)
+        {
+            success = "True";
+            classesCat = adminServices.GetClassCategory().ToList();
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+}
