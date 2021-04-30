@@ -42,7 +42,7 @@
             {
                 <div class="alert alert-success" role="alert">
                     <h4 class="alert-heading">Upload payment Success!</h4>
-                    <p>Your Payment for class @userRegistredClass.Where(x => x.RegistredClassId == new Guid(model.RegistredClassId)).FirstOrDefault().Class.ClassName is uploaded.</p>
+                    <p>Your Payment  is uploaded.</p>
                     <hr>
                     <p>Plase Check you email for confirmation and wait for confirmation. Thank you.</p>
                 </div>
@@ -242,6 +242,7 @@
 
             StateHasChanged();
             userPaidSession = StudentAPI.GetPaidSession(studentId.ToString());
+            model = new PaidSessionDTO();
         }
         else
         {

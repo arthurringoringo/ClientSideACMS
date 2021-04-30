@@ -1,0 +1,314 @@
+﻿@page "/Teacher/Register"
+@model AdminPage.RegisterModel
+@using Microsoft.AspNetCore.Identity
+@using ClientSideACMS.Areas.Identity
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using ACMS.DAL.Models
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+
+    <style type="text/css">
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: rgb(243, 243, 244) !important;
+        }
+
+        .user_card {
+            height:800px;
+            width: 1000px;
+            margin-top: auto;
+            margin-bottom: auto;
+            background: #D9EDF7;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            padding: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            border-radius: 5px;
+        }
+
+        .brand_logo_container {
+            position: absolute;
+            height: 170px;
+            width: 170px;
+            top: -75px;
+            border-radius: 50%;
+            background: #60a3bc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .brand_logo {
+            height: 150px;
+            width: 150px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .form_container {
+            margin-top: 0px;
+        }
+
+        .login_btn {
+            width: 100%;
+            background: #1B7BB9 !important;
+            color: white !important;
+        }
+
+            .login_btn:focus {
+                box-shadow: none !important;
+                outline: 0px !important;
+            }
+
+        .login_container {
+            padding: 0 2rem;
+        }
+
+        .input-group-text {
+            background: #1B7BB9 !important;
+            color: white !important;
+            border: 0 !important;
+            border-radius: 0.25rem 0 0 0.25rem !important;
+        }
+
+        .input_user,
+        .input_pass:focus {
+            box-shadow: none !important;
+            outline: 0px !important;
+        }
+
+        .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+            background-color: #1B7BB9 !important;
+        }
+
+        .register {
+            background: -webkit-linear-gradient(left, #3931af, #00c6ff);
+            margin-top: 3%;
+            padding: 5%;
+        }
+
+        .register-left {
+            text-align: center;
+            color: #fff;
+            /*margin-top: 4%;*/
+        }
+
+            .register-left input {
+                border: none;
+                border-radius: 1.5rem;
+                /*padding: 2%;*/
+                width: 100%;
+                background: #f8f9fa;
+                font-weight: bold;
+                color: #383d41;
+               /* margin-top: 30%;
+                margin-bottom: 3%;*/
+                cursor: pointer;
+            }
+
+        .register-right {
+            background: #f8f9fa;
+            border-top-left-radius: 10% 50%;
+            border-bottom-left-radius: 10% 50%;
+        }
+
+        .register-left img {
+            margin-top: 15%;
+            margin-bottom: 5%;
+            width: 25%;
+            -webkit-animation: mover 2s infinite alternate;
+            animation: mover 1s infinite alternate;
+        }
+
+        .register-left p {
+            font-weight: lighter;
+            padding: 12%;
+            margin-top: -9%;
+        }
+
+        .register .register-form {
+            padding: 10%;
+            margin-top: 10%;
+        }
+
+        .btncontainer {
+            position: relative;
+        }
+
+        .btnRegister {
+            position: absolute;
+            text-align: center;
+            margin: 0;
+            border: none;
+            border-radius: 1rem;
+            padding: 1%;
+            background: #0062cc;
+            color: #fff;
+            font-weight: 600;
+            width: 25%;
+            cursor: pointer;
+            top: 80%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+
+        .register .nav-tabs {
+            margin-top: 3%;
+            border: none;
+            background: #0062cc;
+            border-radius: 1.5rem;
+            width: 28%;
+            float: right;
+        }
+
+            .register .nav-tabs .nav-link {
+                padding: 2%;
+                height: 34px;
+                font-weight: 600;
+                color: #fff;
+                border-top-right-radius: 1.5rem;
+                border-bottom-right-radius: 1.5rem;
+            }
+
+                .register .nav-tabs .nav-link:hover {
+                    border: none;
+                }
+
+                .register .nav-tabs .nav-link.active {
+                    width: 100px;
+                    color: #0062cc;
+                    border: 2px solid #0062cc;
+                    border-top-left-radius: 1.5rem;
+                    border-bottom-left-radius: 1.5rem;
+                }
+
+        .register-heading {
+            text-align: center;
+            margin-top: 8%;
+            margin-bottom: -15%;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container h-100">
+        <div class="d-flex justify-content-center h-100">
+            <div class="user_card">
+                <div class="d-flex justify-content-center">
+                    <div class="brand_logo_container">
+                        <img src="/2019-University-Seal-Color.webp" class="brand_logo" alt="Logo">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center form_container">
+                    <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div class="row register-form">
+                            <div class="col-lg-6">
+                                @*<div asp-validation-summary="All" class="text-danger"></div>*@
+                                <div class="form-group">
+                                    <label asp-for="Input.Username"></label>
+                                    <input asp-for="Input.Username" class="form-control" placeholder="Username *">
+                                    <span asp-validation-for="Input.Username" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Input.Firstname"></label>
+                                    <input asp-for="Input.Firstname" class="form-control" placeholder="First name*">
+                                    <span asp-validation-for="Input.Firstname" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Input.Password"></label>
+                                    <input asp-for="Input.Password" class="form-control" placeholder="Password *">
+                                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Input.ConfirmPassword"></label>
+                                    <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Confirm Password *">
+                                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="checkbox">
+                                        <label class="radio inline">
+                                            Male
+                                            @Html.RadioButtonFor(model => model.Input.Sex, "M")
+                                        </label>
+                                        <label class="radio inline">
+                                            Female
+                                            @Html.RadioButtonFor(model => model.Input.Sex, "F")
+                                        </label>
+                                        <span asp-validation-for="Input.Sex" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+
+                                <div class="form-group">
+                                    <label asp-for="Input.Email"></label>
+                                    <input asp-for="Input.Email" class="form-control" placeholder="Your Email *" value="">
+                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                </div><div class="form-group">
+                                    <label asp-for="Input.Lastname"></label>
+                                    <input asp-for="Input.Lastname" class="form-control" placeholder="Last name*" value="">
+                                    <span asp-validation-for="Input.Lastname" class="text-danger"></span>
+                                </div>
+                                      <div class="form-group">
+                                          <label asp-for="Input.Phonenumber"></label>
+                                          <input asp-for="Input.Phonenumber" class="form-control" placeholder="Phone number*" value="">
+                                          <span asp-validation-for="Input.Phonenumber" class="text-danger"></span>
+                                      </div>
+                                      <div class="form-group">
+                                          <label asp-for="Input.BirthOfDate"></label>
+                                          <input asp-for="Input.BirthOfDate" class="form-control" placeholder="BirthDate *" value="">
+                                          <span asp-validation-for="Input.BirthOfDate" class="text-danger"></span>
+                                      </div>
+
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label asp-for="Input.Address"></label>
+                                            <input asp-for="Input.Address" class="form-control" placeholder="Address" value="">
+                                            <span asp-validation-for="Input.Address" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+
+                                <input type="submit" class="btnRegister" value="Register">
+                            </div>
+
+
+
+                        </div>
+
+                    </form>
+                </div>
+
+                @*<div class="mt-5">
+                    <div class="d-flex justify-content-center links">
+                        Already have an account? <a asp-page="/login" class="ml-2">Login</a>
+                    </div>
+                    <div class="d-flex justify-content-center links">
+                        <a href="#">Forgot your password?</a>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,355 @@
+﻿@page "/FinanceReport"
+
+@namespace AdminPage
+@attribute [Authorize(Roles = "Admin")]
+@using ACMS.DAL.Models
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@inject RoleManager<UserRole> RoleManager
+@using APIACMS.Services;
+@inject IAdminServices adminServices;
+
+
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Teacher's Finance Report </strong></h3>
+    <div class="pt-3">
+        @if (teachers == null)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Operation Success!</h4>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Operation Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+
+
+
+            <br />
+            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group row">
+                            <label for="Teacher" class="col-sm-3 col-form-label centered">Teacher:</label>
+                            <div class="col-sm-9">
+                                <InputSelect @bind-Value="model.TeacherId" class="form-control" id="Teacher">
+                                    @foreach (var teacher in teachers)
+                                        {
+                                        <option value="@teacher.TeacherId">@teacher.FirstName</option>
+                                        }
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="Month" class="col-sm-3 col-form-label centered">Month:</label>
+                            <div class="col-sm-9">
+                                <InputSelect @bind-Value="model.Month" class="form-control" id="Month">
+                                    <option value="">Please Select a Month</option>
+                                    <option value="January">January</option>
+                                    <option value="February">February</option>
+                                    <option value="March">March</option>
+                                    <option value="April">April</option>
+                                    <option value="May">May</option>
+                                    <option value="June">June</option>
+                                    <option value="July">July</option>
+                                    <option value="August">August</option>
+                                    <option value="September">September</option>
+                                    <option value="October">October</option>
+                                    <option value="November">November</option>
+                                    <option value="December">December</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="Year" class="col-sm-3 col-form-label centered">Year:</label>
+                            <div class="col-sm-9">
+                                <InputSelect @bind-Value="model.Year" class="form-control" id="Year">
+                                    <option value="2021">2021</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-5">
+                                <div class="spin-row">
+
+                                </div>
+                            </div>
+                            @if (IsProcessing is false)
+                            {
+
+                                <button class="btn btn-primary btn-outline-primary float-right search">Get</button>
+
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" type="button" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Loading...
+                                </button>
+
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+            if (FinanceReportData is not null)
+            {
+                <div class="centered">
+                    <h2 class="centered"> @teachers.Where(x => x.TeacherId == model.TeacherId).FirstOrDefault().FirstName Finance Report</h2>
+                    <div class="row center">
+
+                        <div class="col-sm-4">
+                            Teacher: @teachers.Find(x => x.TeacherId == model.TeacherId).FirstName
+                        </div>
+                        <div class="col-sm-4">
+                            Month: @model.Month
+                        </div>
+                        <div class="col-sm-4">
+                            Year: @model.Year
+                        </div>
+
+                    </div>
+                    <table class="center" border="1">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Student's Name
+                                </th>
+                                <th colspan="@(PaymentMethods.Count+1)">
+                                    Type of Payment
+                                </th>
+                                <th>
+                                    Total Fees Amount
+                                </th>
+                                <th colspan="4">
+                                    Meetings
+                                </th>
+                                <th>
+                                    Total Amount
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>
+
+                                </th>
+                                @foreach (var paymentTypes in PaymentMethods)
+                                {
+                                    <th>
+                                        @paymentTypes.MethodName - @paymentTypes.Terms x
+                                    </th>
+                                }
+                                <th>Remark</th>
+                                <th>Bath</th>
+                                <th>1st</th>
+                                <th>2nd</th>
+                                <th>3rd</th>
+                                <th>4th</th>
+                                <th>For the month @model.Month</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var students in FinanceReportData)
+                            {
+                                <tr>
+                                    <td>@students.RegistredClass.Student.FirstName @students.RegistredClass.Student.LastName</td>
+
+                                    @foreach (var paymentmehtods in PaymentMethods)
+                                    {
+                                        if (paymentmehtods.PaymentMethodId == students.RegistredClass.PaymentMethodId)
+                                        {
+                                            <td>*</td>
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+                                    }
+                                    <td></td>
+                                    <td>
+                                        @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                        {@students.RegistredClass.Category.DiscountedFee }
+                                    else
+                                    { @students.RegistredClass.Category.TotalTutionFee}
+                                </td>
+
+                                <td>
+                                    @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                    {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
+                                else
+                                { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
+                            </td>
+
+                            <td>
+                                @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
+                            else
+                            { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
+                        </td>
+
+
+                        <td>
+                            @if (students.RegistredClass.Category.DiscountedFee > 0)
+                            {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
+                        else
+                        { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
+                    </td>
+
+
+                    <td>
+                        @if (students.RegistredClass.Category.DiscountedFee > 0)
+                        {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
+                    else
+                    { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
+                </td>
+
+
+
+                <td>
+                    @if (students.RegistredClass.Category.DiscountedFee > 0)
+                    {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)5), 2)
+                }
+                else
+                { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)5), 2)
+            }
+            </td>
+
+
+
+        </tr>
+    }
+
+                            <tr>
+                                <td><b>Total</b></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <b>
+                                        @totalAmount
+                                    </b>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                    <div class="row mt-5 center">
+
+                        <div class="col-sm-4">
+
+                        </div>
+                        <div class="col-sm-4">
+                            Teacher: _______________
+                        </div>
+                        <div class="col-sm-4">
+                            Checked by: __(Aylwin Yonathan)__
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        }
+
+    </div>
+
+</div>
+
+@code {
+    public class FinanceModel
+    {
+        public Guid TeacherId { get; set; }
+        public string Month { get; set; }
+        public int Year { get; set; }
+    }
+    private FinanceModel model { get; set; } = new FinanceModel();
+    private List<PaidSession> FinanceReportData;
+    private List<PaymentMethod> PaymentMethods;
+    private List<Teacher> teachers;
+    private string success;
+    private bool IsProcessing { get; set; }
+
+    public decimal totalAmount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Change to async for loadings
+        teachers = adminServices.GetTeacher().ToList();
+        PaymentMethods = adminServices.GetPaymentMethods().ToList();
+
+
+
+
+    }
+
+
+    private async Task HandleValidSubmitAsync()
+    {
+        totalAmount = 0;
+        success = "False";
+        IsProcessing = true;
+        FinanceReportData = adminServices.GetPaidSessionWithExpressionAndFkData(x => x.RegistredClass.Class.TeacherId == model.TeacherId && x.PaymentsMonth == model.Month && x.PaymentAccepted == true).ToList();
+        IsProcessing = false;
+        if (FinanceReportData is not null)
+        {
+            foreach (var items in FinanceReportData)
+            {
+                if (items.RegistredClass.Category.DiscountedFee > 0)
+                {
+                    totalAmount= totalAmount + Math.Round(((decimal)items.RegistredClass.Category.DiscountedFee / (decimal)5), 2);
+                }
+                else
+                { 
+                    totalAmount= totalAmount + Math.Round(((decimal)items.RegistredClass.Category.TotalTutionFee / (decimal)5), 2);
+                }
+
+            }
+            success = "True";
+
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+}

@@ -1,0 +1,202 @@
+﻿@page "/Profile"
+@namespace TeacherPage
+@attribute [Authorize(Roles = "Teacher")]
+@using ACMS.DAL.Models
+@inject IStudentApiServices StudentAPI
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@using APIACMS.Services;
+@using System.IO
+@inject IAdminServices adminServices; 
+@using Microsoft.AspNetCore.Components.Forms
+
+
+
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Student Profile </strong></h3>
+    <div class="pt-3">
+        @if (model.FirstName == null)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Update Profile Success!</h4>
+                    <p>Your profile has been updated.</p>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Payment Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+
+            <EditForm Model="@model" OnValidSubmit="@HandleValidSubmitAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group row">
+                            <label for="FirstName" class="col-sm-3 col-form-label ">First Name:</label>
+                            <div class="col-sm-9">
+                                <InputText @bind-Value="model.FirstName" class="form-control" id="FirstName">
+                                </InputText>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="LastName" class="col-sm-3 col-form-label ">Last Name:</label>
+                            <div class="col-sm-9">
+                                <InputText @bind-Value="model.LastName" class="form-control" id="LastName">
+                                </InputText>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="BirthDate" class="col-sm-3 col-form-label ">Birth Date:</label>
+                            <div class="col-sm-9">
+                                <InputDate @bind-Value="model.BirthDate" class="form-control" id="BirthDate">
+                                </InputDate>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="Sex" class="col-sm-3 col-form-label ">Sex:</label>
+                            <div class="col-sm-9">
+                                <InputSelect @bind-Value="model.Sex" class="form-control" id="Sex" >
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="Address" class="col-sm-3 col-form-label ">Address:</label>
+                            <div class="col-sm-9">
+                                <InputText @bind-Value="model.Address" class="form-control" id="Address">
+                                </InputText>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="HomePhoneNumber" class="col-sm-3 col-form-label ">Home Phone Number:</label>
+                            <div class="col-sm-9">
+                                <InputText @bind-Value="model.HomeNumber" class="form-control" id="HomePhoneNumber">
+                                </InputText>
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group row">
+                            <div class="col-sm-5">
+                                <div class="spin-row">
+
+                                </div>
+                            </div>
+                            @if (IsProcessing is false)
+                            {
+
+                                <button class="btn btn-primary btn-outline-primary float-right search">Update</button>
+
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" type="button" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Loading...
+                                </button>
+
+                            }
+
+                        </div>
+                    </div>
+
+                </div>
+            </EditForm>
+
+        }
+
+    </div>
+
+</div>
+@code {
+    public string ErrorDetails = "";
+
+    private Teacher model { get; set; } = new Teacher();
+    private string success;
+    private bool IsProcessing { get; set; }
+    public Guid teacherId;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        success = null;
+        if (user.Identity.IsAuthenticated && user != null)
+        {
+            var currentUser = await UserManager.GetUserAsync(user);
+
+            model = adminServices.GetTeacherByCondition(x => x.UserId == currentUser.Id).FirstOrDefault();
+
+
+
+
+        }
+        else
+        {
+            NavManager.NavigateTo("Login");
+        }
+
+        //if (model.Sex == "M") { model.Sex = "Male"; } else { model.Sex = "Female"; }
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        IsProcessing = true;
+        success = null;
+        StateHasChanged();
+
+        var result = adminServices.UpdateTeacher(model);
+        //////var result = studentservices.UploadReciept(model);
+        if (result == true)
+        {
+
+            success = "True";
+            IsProcessing = false;
+
+            StateHasChanged();
+            model = adminServices.GetTeacherByCondition(x => x.UserId == model.UserId).FirstOrDefault();
+        }
+        else
+        {
+
+            success = "False";
+            IsProcessing = false;
+            StateHasChanged();
+
+        }
+
+    }
+
+
+}

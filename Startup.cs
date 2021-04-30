@@ -37,7 +37,7 @@ namespace ClientSideACMS
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzk1NjgxQDMxMzgyZTM0MmUzMEVhejkrU1lsS3RjZTJUTXo5RWM0QVJ1MG8xMHRyZWZSQnRGb2pzdExaTjA9");
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NDM3NDg3QDMxMzkyZTMxMmUzMGFIaW5VM2ZKRVc1MEV2TERJSVE3Mm9DeDUxbzdudnRzNXlWekRaMVkrYUU9");
            
             services.AddSyncfusionBlazor();
 

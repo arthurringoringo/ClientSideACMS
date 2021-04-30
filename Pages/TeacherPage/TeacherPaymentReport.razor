@@ -1,0 +1,267 @@
+﻿@page "/Teacher/PaymentReport"
+
+@namespace TeacherPage
+@attribute [Authorize(Roles = "Teacher")]
+@using ACMS.DAL.Models
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@inject RoleManager<UserRole> RoleManager
+@using APIACMS.Services;
+@inject IAdminServices adminServices;
+
+
+
+
+
+<div class="mainbox">
+
+    <h3>
+        <strong> Your Paid Registred Class </strong>
+    </h3>
+    <div class="pt-3">
+        @if (IsProcessing == true)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Operation Success!</h4>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Operation Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+            <h2 class="centered">Paid Classes</h2>
+            <table class=" fixed_header center">
+
+                <thead>
+                    <tr>
+
+                        <th>
+                            Date Paid
+                        </th>
+
+                        <th>
+                            Student
+                        </th>
+
+                        <th>
+                            Category
+                        </th>
+                        <th>
+                            Class name
+                        </th>
+                        <th>
+                            Payment Method
+                        </th>
+                        <th>
+                            Fully Paid
+                        </th>
+                        <th>
+                            Picture
+                        </th>
+                        <th>
+                            Payment Accepted
+                        </th>
+                        <th>
+                            Payment Month
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in registredClasses)
+                    {
+
+                        foreach (var session in item.PaidSession)
+                        {
+                        <tr>
+                            <td>
+                                @session.DatePaid
+                            </td>
+                            <td>
+                                @item.Student.FirstName @item.Student.LastName
+                            </td>
+                            <td>
+                                @item.Category.CategoryName
+                            </td>
+                            <td>
+                                @item.Class.ClassName
+                            </td>
+                            <td>
+                                @item.PaymentMethod.MethodName
+                            </td>
+                            <td>
+                                @if (item.FullyPaid == false)
+                                {
+                                    <span class=" badge badge-warning">No</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success">Yes</span>
+                                }
+                            </td>
+                            <td><a href="@session.PictureLink"> View Reciept</a></td>
+                            <td>
+                               @if (session.PaymentAccepted == true)
+                               {
+                                <span class="badge badge-success"> Yes</span>
+                               }
+                               else
+                               { 
+                                <span class="badge badge-warning"> No</span>
+                               }
+
+                            </td>
+                            <td>@session.PaymentsMonth</td>
+
+
+                            @*<td>
+                @if (IsProcessing is false)
+                {
+
+                    <button class="btn btn-outline-danger btn-outline-danger search" @onclick="()=> Delete(item)">Delete</button>
+
+                }
+                else
+                {
+                    <button class="btn btn-danger" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Loading...
+                    </button>
+
+                }
+            </td>*@
+
+
+                        </tr>
+
+                        }
+
+                    }
+                </tbody>
+            </table>
+
+        }
+
+    </div>
+
+</div>
+
+@code {
+    private AvailableClass model { get; set; } = new AvailableClass();
+
+    private List<RegistredClass> registredClasses;
+    private Teacher CurrentTeacherUser;
+    private string success;
+    private bool IsProcessing { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Change to async for loadings
+        IsProcessing = true;
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated && user != null)
+        {
+            var currentUser = await UserManager.GetUserAsync(user);
+
+            CurrentTeacherUser = adminServices.GetTeacherByCondition(x => x.UserId == currentUser.Id).FirstOrDefault();
+            registredClasses = adminServices.GetAllRegistredClassWithExpressionAndFkData(x => x.Class.Teacher.TeacherId == CurrentTeacherUser.TeacherId && x.ConfirmedByTeacher == true).ToList();
+
+
+
+
+        }
+        else
+        {
+
+        }
+
+        IsProcessing = false;
+
+
+
+
+
+    }
+
+    //private async Task Update(RegistredClass item)
+    //{
+    //    success = "False";
+    //    IsProcessing = true;
+    //    var result = adminServices.UpdateRegisteredClass(item);
+    //    IsProcessing = false;
+    //    if (result == true)
+    //    {
+    //        success = "True";
+    //        StateHasChanged();
+    //    }
+    //    else
+    //    {
+    //        success = "False";
+    //        StateHasChanged();
+    //    }
+
+    //}
+
+    //private async Task Delete(RegistredClass item)
+    //{
+    //    success = "False";
+    //    IsProcessing = true;
+    //    var result = adminServices.DeleteRegisteredClass(item);
+    //    IsProcessing = false;
+    //    if (result == true)
+    //    {
+    //        success = "True";
+    //        registredClasses = adminServices.GetRegistredClass().ToList();
+    //        StateHasChanged();
+    //    }
+    //    else
+    //    {
+    //        success = "False";
+    //        StateHasChanged();
+    //    }
+
+    //}
+
+    //private async Task HandleValidSubmitAsync()
+    //{
+    //    success = "False";
+    //    IsProcessing = true;
+    //    var result = adminServices.CreateAvailableClass(model);
+    //    IsProcessing = false;
+    //    if (result == true)
+    //    {
+    //        success = "True";
+    //        classes = adminServices.GetAvailableClasses().ToList();
+    //        StateHasChanged();
+    //    }
+    //    else
+    //    {
+    //        success = "False";
+    //        StateHasChanged();
+    //    }
+
+    //}
+}

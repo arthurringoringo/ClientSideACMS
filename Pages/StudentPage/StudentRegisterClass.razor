@@ -38,7 +38,7 @@
             {
                 <div class="alert alert-success" role="alert">
                     <h4 class="alert-heading">Register Success!</h4>
-                    <p>Your Registration for class @availableClass.Where(x => x.ClassId == model.ClassId).FirstOrDefault().ClassName is successfull.</p>
+                    <p>Your Registration is successfull.</p>
                     <hr>
                     <p>Plase Check you email for confirmation and contact your respective Teacher. Thank you.</p>
                 </div>
@@ -60,9 +60,9 @@
                         <InputSelect @bind-Value="model.ClassId" class="form-control" id="availableClass">
                             <option value="">Please Select a Class</option>
                             @foreach (AvailableClassDTO items in availableClass)
-                                {
+                            {
                                 <option value="@items.ClassId">@items.ClassName - @items.Teacher.FirstName</option>
-                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
@@ -73,9 +73,9 @@
                         <InputSelect @bind-Value="model.CategoryId" class="form-control" id="classCategory">
                             <option value="">Please Select a ClassCategory</option>
                             @foreach (ClassCategoryDGO items in classCategory)
-                                {
+                            {
                                 <option value="@items.CategoryId">@items.CategoryName</option>
-                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
@@ -86,9 +86,9 @@
                         <InputSelect @bind-Value="model.PaymentMethodId" class="form-control" id="paymentMethod">
                             <option value="">Please Select a PaymentMethod</option>
                             @foreach (PaymentMethodDTO items in paymentMethod)
-                                {
+                            {
                                 <option value="@items.PaymentMethodId">@items.MethodName</option>
-                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
@@ -201,22 +201,22 @@
                 </thead>
                 <tbody>
                         @foreach (RegistredClass item in userRegistredClass)
-                        {  
-                            
+                        {
+
 
                             <tr>
                              <td>@item.DateRegistered</td>
                              <td>@item.Class.ClassName</td>
                              <td>@item.Class.Teacher.FirstName</td>
                              <td>@item.Category.CategoryName</td>
-                               <td>@if (item.ConfirmedByTeacher is false)
+                               <td>@if (item.ConfirmedByTeacher is false )
                              {
                                  <span class="badge badge-warning">No</span>
                              }
                              else if(item.ConfirmedByTeacher is true)
                              { <span class="badge badge-success">Yes</span>}</td>
                              <td>@item.PaymentMethod.MethodName</td>
-                             <td>@if (item.FullyPaid is null)
+                             <td>@if (item.FullyPaid is false)
                              {
                                  <span class="badge badge-warning">No</span>
                              }
@@ -282,6 +282,7 @@
             IsProcessing = false;
             StateHasChanged();
             userRegistredClass = await StudentAPI.GetStudentRegistredClass(studentId);
+
         }
         else
         {
@@ -291,11 +292,11 @@
             StateHasChanged();
 
         }
-
+        model = new RegistredClassDTO();
     }
     public void ActionFailureHandler(FailureEventArgs args)
     {
-        
+
     }
 
 

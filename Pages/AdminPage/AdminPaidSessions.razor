@@ -49,7 +49,7 @@
             else if (success == "False")
             {
                 <div class="alert alert-danger" role="alert">
-                    <h4 class="alert-heading">Payment Failed!</h4>
+                    <h4 class="alert-heading">Update Failed!</h4>
                     <p>Please try again later or contact our Admin.</p>
                 </div>
             }
@@ -166,20 +166,37 @@
     {
         success = "False";
         IsProcessing = true;
-        var result = adminServices.UpdatePaidSession(item);
-        IsProcessing = false;
-        if (result == true)
+        if (item.PaymentAccepted.Value == adminServices.GetPaidSessionByCondition(x => x.PaidSessionId == item.PaidSessionId).FirstOrDefault().PaymentAccepted)
         {
-            success = "True";
+            IsProcessing = false;
+            success = "False";
             StateHasChanged();
+
+
         }
         else
         {
-            success = "False";
-            StateHasChanged();
+
+
+            var updateItem = adminServices.GetPaidSessionByCondition(x => x.PaidSessionId == item.PaidSessionId).FirstOrDefault();
+            updateItem.PaymentAccepted = item.PaymentAccepted;
+
+            var result = adminServices.UpdatePaidSession(updateItem);
+
+            IsProcessing = false;
+            if (result == true)
+            {
+                success = "True";
+                StateHasChanged();
+            }
+            else
+            {
+                success = "False";
+                StateHasChanged();
+            }
         }
 
     }
 
- 
+
 }

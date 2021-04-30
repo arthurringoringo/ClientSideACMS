@@ -1,0 +1,228 @@
+﻿@page "/ClassRequest"
+
+@namespace TeacherPage
+@attribute [Authorize(Roles = "Teacher")]
+@using ACMS.DAL.Models
+@inject NavigationManager NavManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<User> UserManager
+@inject RoleManager<UserRole> RoleManager
+@using APIACMS.Services;
+@inject IAdminServices adminServices;
+@inject IAPIServiceExtension serviceExt;   
+
+
+
+
+
+
+<div class="mainbox">
+
+    <h3><strong> Class Request </strong></h3>
+    <div class="pt-3">
+        @if (IsProcessing == true)
+        {
+
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+        }
+        else
+        {
+
+
+
+            @if (success == "True")
+            {
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Operation Success!</h4>
+                </div>
+            }
+            else if (success == "False")
+            {
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Operation Failed!</h4>
+                    <p>Please try again later or contact our Admin.</p>
+                </div>
+            }
+            <div class="row">
+
+                @foreach (var item in registredClasses)
+                {  
+                    <div class="col-4 " style="margin-top:20px">
+                        <div class="card" style="margin-left:5%">
+                            <h5 class="card-title">@item.Class.ClassName Registration Request</h5>
+
+                            <div class="card-body">
+                                <p class="card-text"><b>Student Name:</b> @item.Student.FirstName @item.Student.LastName </p>
+                                <p class="card-text"><b>Class Name:</b>@item.Class.ClassName</p>
+                                <p class="card-text">
+                                    <b>Class Category:</b> 
+                                    <select class="form-control" name="Category" @bind="@item.CategoryId">
+                                        @foreach (var category in classCategories)
+                                        {
+                                            <option value="@category.CategoryId">@category.CategoryName</option>
+                                        }
+                                    </select>
+                                </p>
+                                <p class="card-text"><b>Payment Method:</b>@item.PaymentMethod.MethodName</p>
+                                <p class="card-text"><b>Student's Email:</b>@item.Student.User.Email</p>
+                                <p class="card-text"><b>Student's Contact:</b>@item.Student.User.PhoneNumber</p>
+                                <p class="card-text"><b>Student's Contact:</b>@item.DateRegistered</p>
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-5">
+                                    <div class="spin-row">
+
+                                    </div>
+                                </div>
+                                @if (IsProcessing is false)
+                                {
+
+                                    <button class="btn btn-success  float-right search" style="margin:10px;" @onclick="()=>Accept(item)">Accept</button>
+
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Loading...
+                                    </button>
+
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+
+                }
+            </div>
+
+
+
+
+
+        }
+
+    </div>
+
+</div>
+
+@code {
+
+    private RegistredClass model { get; set; } = new RegistredClass();
+    private List<RegistredClass> registredClasses;
+    private List<ClassCategory> classCategories;
+    private string success;
+    private bool IsProcessing { get; set; }
+    private User CurrentUser;
+    private Teacher CurrentTeacherUser;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Change to async for loadings
+        IsProcessing = true;
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        success = null;
+        if (user.Identity.IsAuthenticated && user != null)
+        {
+            var currentUser = await UserManager.GetUserAsync(user);
+
+            CurrentTeacherUser = adminServices.GetTeacherByCondition(x => x.UserId == currentUser.Id).FirstOrDefault();
+
+            classCategories = adminServices.GetClassCategory().ToList();
+
+
+
+        }
+        else
+        {
+
+        }
+
+        registredClasses = adminServices.GetAllRegistredClassWithExpressionAndFkData(x => x.Class.TeacherId == CurrentTeacherUser.TeacherId && x.ConfirmedByTeacher == false).ToList();
+
+
+        IsProcessing = false;
+
+
+
+
+
+    }
+
+    private async Task Accept(RegistredClass item)
+    {
+        success = "False";
+        IsProcessing = true;
+        var request = adminServices.GetRegistredClassByCondition(x => x.RegistredClassId == item.RegistredClassId).FirstOrDefault();
+        request.ConfirmedByTeacher = true;
+        request.CategoryId = item.CategoryId;
+        var result = adminServices.UpdateRegisteredClass(request);
+        IsProcessing = false;
+        if (result == true)
+        {
+            registredClasses = adminServices.GetAllRegistredClassWithExpressionAndFkData(x => x.Class.TeacherId == CurrentTeacherUser.TeacherId).ToList();
+            var email = new EmailDto();
+            email.To = registredClasses.Where(x => x.RegistredClassId==item.RegistredClassId).FirstOrDefault().Student.User.Email;
+            email.Cc = registredClasses.Where(x => x.RegistredClassId==item.RegistredClassId).FirstOrDefault().Class.Teacher.User.Email;
+            email.Subject = "Class Confirmation";
+            email.Body = "Dear Student, your teacher has accepted your class registration." + item.Class.ClassName + " with " + item.Class.Teacher.FirstName +" "+ item.Class.Teacher.LastName+ ".Class category"+item.Category.CategoryName+". Thank you ";
+
+            var emailsendresult = serviceExt.SendEmail(email);
+            registredClasses = adminServices.GetAllRegistredClassWithExpressionAndFkData(x => (x.Class.TeacherId == CurrentTeacherUser.TeacherId && x.ConfirmedByTeacher == false)).ToList();
+
+            model = new RegistredClass();
+            success = "True";
+            StateHasChanged();
+        }
+
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+    private async Task Decline(RegistredClass item)
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.UpdateRegisteredClass(item);
+        IsProcessing = false;
+        if (result == true)
+        {
+            registredClasses = adminServices.GetAllRegistredClassWithExpressionAndFkData(x => x.Class.TeacherId == CurrentTeacherUser.TeacherId).ToList();
+            var email = new EmailDto();
+            email.To = registredClasses.Where(x => x.RegistredClassId==model.RegistredClassId).FirstOrDefault().Student.User.Email;
+            email.Cc = registredClasses.Where(x => x.RegistredClassId==model.RegistredClassId).FirstOrDefault().Class.Teacher.User.Email;
+            email.Subject = "Class Confirmation";
+            email.Body = "Dear Student, your teacher has decline your class registration." + item.Class.ClassName + " with " + item.Class.Teacher.FirstName + item.Class.Teacher.LastName + " on " + ". Thank you ";
+
+            var emailsendresult = serviceExt.SendEmail(email);
+            model = new RegistredClass();
+            success = "True";
+            StateHasChanged();
+        }
+
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
+
+    }
+
+
+
+}

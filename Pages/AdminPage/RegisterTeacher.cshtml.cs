@@ -15,31 +15,33 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ACMS.DAL.Models;
 using ClientSideACMS.Data;
+using APIACMS.Services;
 
-namespace ClientSideACMS.Pages
+namespace AdminPage
 {
-    [AllowAnonymous]
+    [Authorize(Roles ="Admin")]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IAPIServiceExtension _emailSender;
-        private readonly IStudentApiServices _studentApi;
+        private readonly IAdminServices _adminServices;
 
         public RegisterModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
             IAPIServiceExtension emailSender,
-            IStudentApiServices studentapi
+            IAdminServices adminServices
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _studentApi = studentapi;
+            _adminServices = adminServices;
+
         }
 
         [BindProperty]
@@ -77,14 +79,6 @@ namespace ClientSideACMS.Pages
             public DateTime BirthOfDate { get; set; }
 
             [Required]
-            [Display(Name = "Parent/Guardian Name")]
-            public string ParentGuardianName{ get; set; }
-
-            [Required]
-            [Display(Name = "School Name")]
-            public string SchoolName { get; set; }
-
-            [Required]
             [Display(Name = "Gender")]
             public string Sex { get; set; }
 
@@ -106,11 +100,11 @@ namespace ClientSideACMS.Pages
 
         public IActionResult OnGet()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
             {
-                return LocalRedirect("~/");
+                return Page();
             }
-            else { return Page(); }
+            else { return LocalRedirect("~/"); }
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -120,18 +114,18 @@ namespace ClientSideACMS.Pages
             if (ModelState.IsValid)
             {
                 var user = new User { UserName = Input.Username, Email = Input.Email,PhoneNumber=Input.Phonenumber };
-                var student = new Student {FirstName = Input.Firstname, LastName = Input.Lastname, BirthDate = Input.BirthOfDate, Sex = Input.Sex, ParentGuardianName = Input.ParentGuardianName, Address = Input.Address, SchoolName = Input.SchoolName,CreatedOn=DateTime.Now };
+                var teacher = new Teacher {FirstName = Input.Firstname, LastName = Input.Lastname, BirthDate = Input.BirthOfDate, Sex = Input.Sex, Address = Input.Address,CreatedOn=DateTime.Now };
                 var result = await _userManager.CreateAsync(user, Input.Password);
-                await _userManager.AddToRoleAsync(user, "Student");
+                await _userManager.AddToRoleAsync(user, "Teacher");
                 
                 if (result.Succeeded)
                 {
-                    student.UserId = user.Id;
-                    var createStudent = await _studentApi.CreateAccount(student);
+                    teacher.UserId = user.Id;
+                    var createTeacher = _adminServices.CreateTeacher(teacher);
 
-                    if (createStudent == "true")
+                    if (createTeacher == true)
                     {
-                        _logger.LogInformation("User created a new account with password.");
+                        _logger.LogInformation(" Teacher User created a new account with password.");
 
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -143,7 +137,7 @@ namespace ClientSideACMS.Pages
                         
                         var confirmLink =$"<h1>Thank you for registering to ACMS</h1> <b>Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.";
 
-                        EmailDto email = new EmailDto { To = user.Email, Subject = "Confirm Your Account - ACMS", Body = confirmLink };
+                        EmailDto email = new EmailDto { To = user.Email, Subject = "Confirm Your Account - ACMS", Body = confirmLink};
                         //TODO Beutify confirmation page
                         // Disabled until congirm page is usefull
                         await _emailSender.SendEmail(email);
