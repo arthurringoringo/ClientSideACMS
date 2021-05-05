@@ -156,7 +156,7 @@ namespace ClientSideACMS.Data
 
             return httpResponseMessage;
         }
-        public async Task<List<ClassCategoryDGO>> GetClassCategory()
+        public async Task<List<ClassCategory>> GetClassCategory()
         {
             var result = await client.GetAsync("/Student/classcategory");
 
@@ -164,7 +164,7 @@ namespace ClientSideACMS.Data
 
             var httResponseMessage = result.Content.ReadAsStringAsync().Result;
 
-            var classCategory = JsonConvert.DeserializeObject<List<ClassCategoryDGO>>(httResponseMessage);
+            var classCategory = JsonConvert.DeserializeObject<List<ClassCategory>>(httResponseMessage);
 
             return classCategory;
         }

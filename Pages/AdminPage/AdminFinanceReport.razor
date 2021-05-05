@@ -12,6 +12,7 @@
 @inject RoleManager<UserRole> RoleManager
 @using APIACMS.Services;
 @inject IAdminServices adminServices;
+@using System.ComponentModel.DataAnnotations;
 
 
 
@@ -19,7 +20,9 @@
 
 <div class="mainbox">
 
-    <h3><strong> Teacher's Finance Report </strong></h3>
+    <h3>
+        <strong> Teacher's Finance Report </strong>
+    </h3>
     <div class="pt-3">
         @if (teachers == null)
         {
@@ -62,6 +65,7 @@
                             <label for="Teacher" class="col-sm-3 col-form-label centered">Teacher:</label>
                             <div class="col-sm-9">
                                 <InputSelect @bind-Value="model.TeacherId" class="form-control" id="Teacher">
+
                                     @foreach (var teacher in teachers)
                                         {
                                         <option value="@teacher.TeacherId">@teacher.FirstName</option>
@@ -93,6 +97,7 @@
                             <label for="Year" class="col-sm-3 col-form-label centered">Year:</label>
                             <div class="col-sm-9">
                                 <InputSelect @bind-Value="model.Year" class="form-control" id="Year">
+                                    <option value="">Please Select a Year</option>
                                     <option value="2021">2021</option>
                                 </InputSelect>
                             </div>
@@ -179,6 +184,7 @@
                             </tr>
                         </thead>
                         <tbody>
+
                             @foreach (var students in FinanceReportData)
                             {
                                 <tr>
@@ -195,62 +201,67 @@
                                             <td></td>
                                         }
                                     }
-                                    <td></td>
+                                    <td>@if (students.RegistredClass.FullyPaid == true) { <b>Fully Paid</b>
+                                         
+                                    }</td>
                                     <td>
                                         @if (students.RegistredClass.Category.DiscountedFee > 0)
                                         {@students.RegistredClass.Category.DiscountedFee }
                                     else
                                     { @students.RegistredClass.Category.TotalTutionFee}
-                                </td>
+                                    </td>
 
-                                <td>
-                                    @if (students.RegistredClass.Category.DiscountedFee > 0)
-                                    {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
-                                else
-                                { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
-                            </td>
+                                    <td>
+                                        @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                        {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)15), 2) }
+                                    else
+                                    { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)15), 2)}
+                                    </td>
 
-                            <td>
-                                @if (students.RegistredClass.Category.DiscountedFee > 0)
-                                {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
-                            else
-                            { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
-                        </td>
-
-
-                        <td>
-                            @if (students.RegistredClass.Category.DiscountedFee > 0)
-                            {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
-                        else
-                        { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
-                    </td>
+                                    <td>
+                                        @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                        {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)15), 2) }
+                                    else
+                                    { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)15), 2)}
+                                    </td>
 
 
-                    <td>
-                        @if (students.RegistredClass.Category.DiscountedFee > 0)
-                        {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)19.50), 2) }
-                    else
-                    { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)19.50), 2)}
-                </td>
+                                    <td>
+                                        @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                        {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)15), 2) }
+                                    else
+                                    { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)15), 2)}
+                                    </td>
 
 
-
-                <td>
-                    @if (students.RegistredClass.Category.DiscountedFee > 0)
-                    {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)5), 2)
-                }
-                else
-                { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)5), 2)
-            }
-            </td>
+                                    <td>
+                                        @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                        {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)15), 2) }
+                                    else
+                                    { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)15), 2)}
+                                    </td>
 
 
 
-        </tr>
-    }
+                                    <td>
+                                        @if (students.RegistredClass.Category.DiscountedFee > 0)
+                                        {@Math.Round(((decimal)students.RegistredClass.Category.DiscountedFee / (decimal)5), 2)
+                                    }
+                                    else
+                                    { @Math.Round(((decimal)students.RegistredClass.Category.TotalTutionFee / (decimal)5), 2)
+                                }
+                                    </td>
+
+
+
+                                </tr>
+                            }
+
 
                             <tr>
-                                <td><b>Total</b></td>
+                                <td>
+                                    <b>Total</b>
+                                </td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -295,12 +306,16 @@
 @code {
     public class FinanceModel
     {
+        [Required(ErrorMessage = "Please Choose a Teacher")]
         public Guid TeacherId { get; set; }
+        [Required(ErrorMessage = "Please Select a Month")]
         public string Month { get; set; }
+        [Required(ErrorMessage = "Please Select a Year")]
         public int Year { get; set; }
     }
     private FinanceModel model { get; set; } = new FinanceModel();
     private List<PaidSession> FinanceReportData;
+    private List<PaidSession> FinanceReportDataFullyPaid;
     private List<PaymentMethod> PaymentMethods;
     private List<Teacher> teachers;
     private string success;
@@ -326,6 +341,14 @@
         success = "False";
         IsProcessing = true;
         FinanceReportData = adminServices.GetPaidSessionWithExpressionAndFkData(x => x.RegistredClass.Class.TeacherId == model.TeacherId && x.PaymentsMonth == model.Month && x.PaymentAccepted == true).ToList();
+        FinanceReportDataFullyPaid = adminServices.GetPaidSessionWithExpressionAndFkData(x => x.RegistredClass.Class.TeacherId == model.TeacherId && x.RegistredClass.FullyPaid == true).ToList();
+        foreach (PaidSession items in FinanceReportDataFullyPaid)
+        {
+            if (!FinanceReportData.Contains(items))
+            {
+                FinanceReportData.Append(items);
+            }
+        }
         IsProcessing = false;
         if (FinanceReportData is not null)
         {
@@ -333,14 +356,15 @@
             {
                 if (items.RegistredClass.Category.DiscountedFee > 0)
                 {
-                    totalAmount= totalAmount + Math.Round(((decimal)items.RegistredClass.Category.DiscountedFee / (decimal)5), 2);
+                    totalAmount = totalAmount + Math.Round(((decimal)items.RegistredClass.Category.DiscountedFee / (decimal)5), 2);
                 }
                 else
-                { 
-                    totalAmount= totalAmount + Math.Round(((decimal)items.RegistredClass.Category.TotalTutionFee / (decimal)5), 2);
+                {
+                    totalAmount = totalAmount + Math.Round(((decimal)items.RegistredClass.Category.TotalTutionFee / (decimal)5), 2);
                 }
 
             }
+
             success = "True";
 
             StateHasChanged();

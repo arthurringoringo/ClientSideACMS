@@ -51,7 +51,7 @@ namespace ClientSideACMS
             services.AddServerSideBlazor();
             services.AddScoped(hc => new HttpClient
             {
-                BaseAddress = new Uri("https://localhost:5001/")
+                BaseAddress = new Uri("http://localhost:90/")
             });
             services.AddScoped<IAPIServiceExtension, APIServiceExtension>();
             services.AddRepositoryCollection();

@@ -1,4 +1,4 @@
-﻿@page "/RegisteredClass"
+﻿@page "/PaymentMethods"
 
 @namespace AdminPage
 @attribute [Authorize(Roles = "Admin")]
@@ -19,9 +19,9 @@
 
 <div class="mainbox">
 
-    <h3><strong> Registred Class </strong></h3>
+    <h3><strong> Payment Methods </strong></h3>
     <div class="pt-3">
-        @if (IsProcessing ==true)
+        @if (paymentmethods == null)
         {
 
             <div class="d-flex justify-content-center">
@@ -49,107 +49,48 @@
                     <p>Please try again later or contact our Admin.</p>
                 </div>
             }
-            <h2 class="centered">Registred Class's Table</h2>
+            <h2 class="centered">Payment Methods's Table</h2>
             <table class=" fixed_header center">
 
                 <thead>
                     <tr>
                         <th>
-                            Id
+                            Payment Method ID
                         </th>
 
                         <th>
-                            Date Registred
+                            Created On
                         </th>
 
                         <th>
-                            Student
+                           Method Name
                         </th>
 
                         <th>
-                            Category
-                        </th>
-                        <th>
-                            Class name
+                           Terms
                         </th>
 
-
-                        <th>
-                            Confirmed by Teacher
-                        </th>
-                        <th>
-                            Assessment Date Time
-                        </th>
-                        <th>
-                            Payment Method
-                        </th>
-                        <th>
-                            Fully Paid
-                        </th>                         
                         <th>
                             Update
-                        </th>                          
+                        </th>
                         <th>
                             Delete
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in registredClasses)
+                    @foreach (var item in paymentmethods)
                     {
 
                         <tr>
-                            <td>@item.RegistredClassId</td>
-                            <td>@item.DateRegistered</td>
+                            <td>@item.PaymentMethodId</td>
+                            <td>@item.CreatedOn</td>
                             <td>
-                                <select class="form-control" name="Student" @bind="@item.StudentId">
-                                    @foreach (var student in students)
-                                    {
-                                        <option value="@student.StudentId">@student.FirstName</option>
-                                    }
-                                </select>
+                                <input type="text" class="form-control" @bind="@item.MethodName" />
                             </td>
                             <td>
-                                <select class="form-control" name="Category" @bind="@item.CategoryId">
-                                    @foreach (var category in classCategories)
-                                    {
-                                        <option value="@category.CategoryId">@category.CategoryName</option>
-                                    }
-                                </select>
+                                <input type="number" class="form-control" @bind="@item.Terms" />
                             </td>
-                            <td>
-                                <select class="form-control" name="Class" @bind="@item.ClassId">
-                                    @foreach (var course in classes)
-                                    {
-                                        <option value="@course.ClassId">@course.ClassName</option>
-                                    }
-                                </select>
-                            </td>
-                            <td>
-                                <input type="checkbox" @bind="@item.ConfirmedByTeacher" />
-                                @*<select class="form-control" name="Confirm" @bind="@item.ConfirmedByTeacher.">
-        <option value=True>True</option>
-        <option value=False>False</option>*@
-
-                                <!--</select>-->
-                            </td>
-                            <td>
-                                @item.AssessmentDate
-                            </td>
-                            <td>
-                                <select class="form-control" name="PaymentMethod" @bind="@item.PaymentMethodId">
-                                    @foreach (var payment in paymentMethods)
-                                    {
-                                        <option value="@payment.PaymentMethodId">@payment.MethodName</option>
-                                    }
-
-                                </select>
-                            </td>
-                            <td>
-                                <input type="checkbox" @bind="@item.FullyPaid" />
-                            </td>
-
-
                             <td>
                                 @if (IsProcessing is false)
                                 {
@@ -189,30 +130,27 @@
                     }
                 </tbody>
             </table>
-            @*<br />
+             <br />
             <EditForm Model="@model" OnValidSubmit="@HandleValidSubmitAsync">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="row">
                     <div class="col-sm-8">
                         <div class="form-group row">
-                            <label for="ClassName" class="col-sm-3 col-form-label centered">Class Name :</label>
+                            <label for="methodname" class="col-sm-3 col-form-label centered">Method Name :</label>
                             <div class="col-sm-9">
-                                <InputText @bind-Value="model.ClassName" class="form-control" id="ClassName">
-
+                                <InputText @bind-Value="model.MethodName" class="form-control" id="methodname">
+                                    
                                 </InputText>
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="Teacher" class="col-sm-3 col-form-label centered">Class Teacher:</label>
+                            <label for="terms" class="col-sm-3 col-form-label centered">Terms:</label>
                             <div class="col-sm-9">
-                                <InputSelect @bind-Value="model.TeacherId" class="form-control" id="Teacher">
-                                    @foreach (var teacher in teachers)
-                                        {
-                                        <option value="@teacher.TeacherId">@teacher.FirstName</option>
-                                        }
-                                </InputSelect>
+                                <InputNumber @bind-Value="model.Terms" class="form-control" id="terms">
+
+                                </InputNumber>
                             </div>
                         </div>
 
@@ -240,7 +178,7 @@
                         </div>
                     </div>
                 </div>
-            </EditForm>*@
+            </EditForm>
 
 
         }
@@ -250,12 +188,8 @@
 </div>
 
 @code {
-    private AvailableClass model { get; set; } = new AvailableClass();
-    private List<AvailableClass> classes;
-    private List<Student> students;
-    private List<RegistredClass> registredClasses;
-    private List<ClassCategory> classCategories;
-    private List<PaymentMethod> paymentMethods;
+    private PaymentMethod model { get; set; } = new PaymentMethod();
+    private List<PaymentMethod> paymentmethods;
     private string success;
     private bool IsProcessing { get; set; }
 
@@ -263,25 +197,18 @@
     protected override async Task OnInitializedAsync()
     {
         // Change to async for loadings
-        IsProcessing = true;
-        classes = adminServices.GetAvailableClasses().ToList();
-        students = adminServices.GetStudent().ToList();
-        registredClasses = adminServices.GetRegistredClass().ToList();
-        classCategories = adminServices.GetClassCategory().ToList();
-        paymentMethods = adminServices.GetPaymentMethods().ToList();
-        IsProcessing = false;
-
+        paymentmethods = adminServices.GetPaymentMethods().ToList();
 
 
 
 
     }
 
-    private async Task Update(RegistredClass item)
+    private async Task Update(PaymentMethod item)
     {
         success = "False";
         IsProcessing = true;
-        var result = adminServices.UpdateRegisteredClass(item);
+        var result = adminServices.UpdatePaymentMethod(item);
         IsProcessing = false;
         if (result == true)
         {
@@ -296,16 +223,16 @@
 
     }
 
-    private async Task Delete(RegistredClass item)
+    private async Task Delete(PaymentMethod item)
     {
         success = "False";
         IsProcessing = true;
-        var result = adminServices.DeleteRegisteredClass(item);
+        var result = adminServices.DeletePaymentMethod(item);
         IsProcessing = false;
         if (result == true)
         {
             success = "True";
-            registredClasses = adminServices.GetRegistredClass().ToList();
+            paymentmethods = adminServices.GetPaymentMethods().ToList();
             StateHasChanged();
         }
         else
@@ -316,23 +243,24 @@
 
     }
 
-    //private async Task HandleValidSubmitAsync()
-    //{
-    //    success = "False";
-    //    IsProcessing = true;
-    //    var result = adminServices.CreateAvailableClass(model);
-    //    IsProcessing = false;
-    //    if (result == true)
-    //    {
-    //        success = "True";
-    //        classes = adminServices.GetAvailableClasses().ToList();
-    //        StateHasChanged();
-    //    }
-    //    else
-    //    {
-    //        success = "False";
-    //        StateHasChanged();
-    //    }
+    private async Task HandleValidSubmitAsync()
+    {
+        success = "False";
+        IsProcessing = true;
+        var result = adminServices.CreatePaymentMethod(model);
+        IsProcessing = false;
+        if (result == true)
+        {
+            success = "True";
+            paymentmethods = adminServices.GetPaymentMethods().ToList();
+            model = new PaymentMethod();
+            StateHasChanged();
+        }
+        else
+        {
+            success = "False";
+            StateHasChanged();
+        }
 
-    //}
+    }
 }

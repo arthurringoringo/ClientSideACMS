@@ -14,7 +14,7 @@ namespace ClientSideACMS.Data
         string RegisterClass(RegistredClassDTO model);
         Task<string> RegisterClassAsync(RegistredClassDTO model);
         Task<string> UpdateProfile(Student model);
-        Task<List<ClassCategoryDGO>> GetClassCategory();
+        Task<List<ClassCategory>> GetClassCategory();
         Task<List<AvailableClassDTO>> GetAvailableClass();
         Task<List<PaymentMethodDTO>> GetPaymentMethod();
         public Student GetProfileUser(string id);

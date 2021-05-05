@@ -299,6 +299,7 @@
         {
             success = "True";
             classesCat = adminServices.GetClassCategory().ToList();
+            model = new ClassCategory();
             StateHasChanged();
         }
         else

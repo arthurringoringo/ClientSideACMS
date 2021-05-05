@@ -51,7 +51,7 @@
                 </div>
             }
             <h2 class="centered">Student Table</h2>
-            <table class=" fixed_header center" style="height:70px;">
+            <table class=" fixed_header center" >
 
                 <thead>
                     <tr>
@@ -219,9 +219,9 @@
                             Role
                         </th>
 
-                        <th>
+                        @*<th>
                             Update
-                        </th>
+                        </th>*@
                     </tr>
                 </thead>
                 <tbody>
@@ -233,7 +233,7 @@
                             <td>@user.UserName</td>
                             <td>@user.Email</td>
                             <td>Admin</td>
-                            <td>
+                            @*<td>
                                 @if (IsProcessing is false)
                                 {
 
@@ -264,7 +264,7 @@
                                     </button>
 
                                 }
-                            </td>
+                            </td>*@
 
                         </tr>
 

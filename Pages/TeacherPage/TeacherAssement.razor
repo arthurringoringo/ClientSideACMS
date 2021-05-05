@@ -51,7 +51,7 @@
                     <p>Please try again later or contact our Admin.</p>
                 </div>
             }
-            <h2 class="centered">Available Classes's Table</h2>
+            <h2 class="centered">Student Assessment's Table</h2>
             <table class=" fixed_header center">
 
                 <thead>
@@ -91,32 +91,37 @@
                     @foreach (var item in registredClasses)
                     {
 
-                        <tr>
-                            <td>@item.RegistredClassId</td>
-                            <td>@item.DateRegistered</td>
-                            <td>
-                                @item.Student.FirstName @item.Student.LastName
-                            </td>
-                            <td>
-                                @item.Category.CategoryName
-                            </td>
-                            <td>
-                                 @item.Class.ClassName
-                            </td>
-                            <td>
-                                @item.ConfirmedByTeacher
-                            </td>
-                            <td>
-                                @item.AssessmentDate
-                            </td>
-                            <td>
-                                @item.PaymentMethod.MethodName
-                            </td>
+                    <tr>
+                        <td>@item.RegistredClassId</td>
+                        <td>@item.DateRegistered</td>
+                        <td>
+                            @item.Student.FirstName @item.Student.LastName
+                        </td>
+                        <td>
+                            @item.Category.CategoryName
+                        </td>
+                        <td>
+                            @item.Class.ClassName
+                        </td>
+                        <td>
+                            @if (item.ConfirmedByTeacher is false)
+                             {
+                            <span class="badge badge-warning">No</span>
+                             }
+                             else
+                             { <span class="badge badge-success">Yes</span> }
+                    </td>
+                    <td>
+                        @item.AssessmentDate
+                    </td>
+                    <td>
+                        @item.PaymentMethod.MethodName
+                    </td>
 
 
-                          
 
-                        </tr>
+
+                    </tr>
 
                     }
                 </tbody>
@@ -159,6 +164,8 @@
                                 <label for="assessmentMethod" class="col-sm-3 col-form-label centered">Assessment Method:</label>
                                 <div class="col-sm-9">
                                     <InputSelect @bind-Value="assessmentMethod" class="form-control" id="assessmentMethod">
+                                        
+                                        <option value="">Select</option>
                                         <option value="Online">Online</option>
                                         <option value="Face To Face">Face To Face</option>
 
@@ -170,8 +177,6 @@
                                 <label for="assessmentPlace" class="col-sm-3 col-form-label centered">Assessment Place/URL:</label>
                                 <div class="col-sm-9">
                                     <InputText @bind-Value="assessmentPlace" class="form-control" id="assessmentPlace">
-                                        <option value="Online">Online</option>
-                                        <option value="Face To Face">Face To Face</option>
 
                                     </InputText>
                                  
@@ -220,7 +225,6 @@
     private List<RegistredClass> registredClasses;
     private string success;
     private bool IsProcessing { get; set; }
-    private User CurrentUser;
     private Teacher CurrentTeacherUser;
 
 
@@ -272,7 +276,7 @@
             email.To = registredClasses.Where(x => x.RegistredClassId==model.RegistredClassId).FirstOrDefault().Student.User.Email;
             email.Cc = registredClasses.Where(x => x.RegistredClassId==model.RegistredClassId).FirstOrDefault().Class.Teacher.User.Email;
             email.Subject = "Assessment Information";
-            email.Body = "Dear Student, your teacher has scheduled assessment on " + item.AssessmentDate + " through " + assessmentMethod + " at " + assessmentPlace + " please come accordingly. Thank you ";
+            email.Body = "Dear Student, your teacher has scheduled assessment on " + item.AssessmentDate + " through " + assessmentMethod + " method at " + assessmentPlace + " please come accordingly. Thank you ";
 
             var emailsendresult = serviceExt.SendEmail(email);
             model = new RegistredClass();

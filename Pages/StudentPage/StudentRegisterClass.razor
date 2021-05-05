@@ -72,9 +72,9 @@
                     <div class="col-sm-6">
                         <InputSelect @bind-Value="model.CategoryId" class="form-control" id="classCategory">
                             <option value="">Please Select a ClassCategory</option>
-                            @foreach (ClassCategoryDGO items in classCategory)
+                            @foreach (var items in classCategory)
                             {
-                                <option value="@items.CategoryId">@items.CategoryName</option>
+                                <option value="@items.CategoryId">@items.CategoryName Total Tution Fee: @Math.Round(items.TotalTutionFee.Value,2).</option>
                             }
                         </InputSelect>
                     </div>
@@ -92,6 +92,8 @@
                         </InputSelect>
                     </div>
                 </div>
+                
+                
                 <div class="form-group row">
                     <div class="col-sm-5">
                         <div class="spin-row">
@@ -221,7 +223,7 @@
                                  <span class="badge badge-warning">No</span>
                              }
                              else
-                             { @item.FullyPaid }</td>
+                             { <span class="badge badge-success">Yes</span> }</td>
                             </tr>
                         }
                  </tbody>
@@ -234,7 +236,7 @@
 @code {
     public string ErrorDetails = "";
 
-    private List<ClassCategoryDGO> classCategory;
+    private List<ClassCategory> classCategory;
     private List<AvailableClassDTO> availableClass;
     private List<PaymentMethodDTO> paymentMethod;
     public List<RegistredClass> userRegistredClass;
