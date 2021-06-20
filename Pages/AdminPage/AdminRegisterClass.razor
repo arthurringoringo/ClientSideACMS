@@ -105,7 +105,7 @@
                                 <select class="form-control" name="Student" @bind="@item.StudentId">
                                     @foreach (var student in students)
                                     {
-                                        <option value="@student.StudentId">@student.FirstName</option>
+                                        <option value="@student.StudentId">@student.FirstName @student.LastName</option>
                                     }
                                 </select>
                             </td>

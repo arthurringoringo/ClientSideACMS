@@ -1,7 +1,7 @@
 ﻿@page "/Teacher/AvailableClasses"
 
 @namespace TeacherPage
-@attribute [Authorize(Roles = "Teacher")]
+@attribute [Authorize(Roles = "Teacher,Admin")]
 @using ACMS.DAL.Models
 @inject NavigationManager NavManager
 @using Microsoft.AspNetCore.Http

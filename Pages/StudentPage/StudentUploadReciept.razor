@@ -67,7 +67,7 @@
                                 <option value="">Please Select a Class</option>
                                 @foreach (RegistredClass items in userRegistredClass)
                                     {
-                                    <option value="@items.RegistredClassId">@items.Class.ClassName - @items.Class.Teacher.FirstName</option>
+                            <option value="@items.RegistredClassId">@items.Class.ClassName - @items.Class.Teacher.FirstName @items.Class.Teacher.LastName</option>
                                     }
                             </InputSelect>
                         </div>

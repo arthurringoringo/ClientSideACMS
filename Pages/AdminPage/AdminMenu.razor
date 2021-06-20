@@ -1,7 +1,7 @@
 ﻿@namespace AdminPage
 
 @attribute [Authorize(Roles = "Admin")]
-
+@using TeacherPage 
 <div class="mainbox">
     <h3><strong>Admin's Menu</strong></h3>
 
@@ -81,6 +81,7 @@
     </div>
 
 </div>
+<TeacherMenu/>
 
 @code {
 

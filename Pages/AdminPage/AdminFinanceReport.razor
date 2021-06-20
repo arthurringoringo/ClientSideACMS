@@ -68,7 +68,7 @@
 
                                     @foreach (var teacher in teachers)
                                         {
-                                        <option value="@teacher.TeacherId">@teacher.FirstName</option>
+                                        <option value="@teacher.TeacherId">@teacher.FirstName @teacher.LastName</option>
                                         }
                                 </InputSelect>
                             </div>
@@ -135,7 +135,7 @@
                     <div class="row center">
 
                         <div class="col-sm-4">
-                            Teacher: @teachers.Find(x => x.TeacherId == model.TeacherId).FirstName
+                            Teacher: @teachers.Find(x => x.TeacherId == model.TeacherId).FirstName  @teachers.Find(x => x.TeacherId == model.TeacherId).LastName
                         </div>
                         <div class="col-sm-4">
                             Month: @model.Month

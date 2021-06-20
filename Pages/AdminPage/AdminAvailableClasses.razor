@@ -92,7 +92,7 @@
                                 <select class="form-control" name="Teacher" @bind="@item.TeacherId">
                                     @foreach (var teacher in teachers)
                                     {
-                                        <option value="@teacher.TeacherId">@teacher.FirstName</option>
+                                        <option value="@teacher.TeacherId">@teacher.FirstName @teacher.LastName</option>
                                     }
                                 </select>
                             </td>
@@ -156,7 +156,7 @@
                                 <InputSelect @bind-Value="model.TeacherId" class="form-control" id="Teacher">
                                     @foreach (var teacher in teachers)
                                         {
-                                        <option value="@teacher.TeacherId">@teacher.FirstName</option>
+                                        <option value="@teacher.TeacherId">@teacher.FirstName @teacher.LastName</option>
                                         }
                                 </InputSelect>
                             </div>
@@ -205,7 +205,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Change to async for loadings
+        
         classes = adminServices.GetAvailableClasses().ToList();
         teachers = adminServices.GetTeacher().ToList();
 

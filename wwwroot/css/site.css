@@ -196,7 +196,8 @@ app {
     }
     .mainbox {
         background-color: white;
-        height:150vh;
+        padding-bottom:2rem;
+       margin-bottom:2rem;
     }
     .centered {
         text-align:center;

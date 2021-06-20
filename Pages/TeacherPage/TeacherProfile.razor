@@ -1,6 +1,6 @@
 ﻿@page "/Profile"
 @namespace TeacherPage
-@attribute [Authorize(Roles = "Teacher")]
+@attribute [Authorize(Roles = "Teacher,Admin")]
 @using ACMS.DAL.Models
 @inject IStudentApiServices StudentAPI
 @inject NavigationManager NavManager
@@ -21,7 +21,7 @@
 
 <div class="mainbox">
 
-    <h3><strong> Student Profile </strong></h3>
+    <h3><strong> Teacher Profile </strong></h3>
     <div class="pt-3">
         @if (model.FirstName == null)
         {

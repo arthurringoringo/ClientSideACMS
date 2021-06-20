@@ -61,7 +61,7 @@
                             <option value="">Please Select a Class</option>
                             @foreach (AvailableClassDTO items in availableClass)
                             {
-                                <option value="@items.ClassId">@items.ClassName - @items.Teacher.FirstName</option>
+                                <option value="@items.ClassId">@items.ClassName - @items.Teacher.FirstName @items.Teacher.LastName</option>
                             }
                         </InputSelect>
                     </div>
@@ -209,7 +209,7 @@
                             <tr>
                              <td>@item.DateRegistered</td>
                              <td>@item.Class.ClassName</td>
-                             <td>@item.Class.Teacher.FirstName</td>
+                             <td>@item.Class.Teacher.FirstName @item.Class.Teacher.LastName</td>
                              <td>@item.Category.CategoryName</td>
                                <td>@if (item.ConfirmedByTeacher is false )
                              {
